@@ -1,0 +1,7 @@
+Unit Test Summary
+rundate:2020-07-08 15-01-53_711106
+________________
+
+	test: config_test | tested: setup() function | outcome: passed | runtime: 0:00:00.035801
+	test: config_test | tested: update_cred() function | outcome: passed | runtime: 0:00:00.062668
+	test: config_test | tested: prod_engine() function | outcome: passed | runtime: 0:00:01.898036
