@@ -68,3 +68,33 @@ svr,db,_x = d['local_server'].values()
 # )
 # ''','dmp_dev_env')
 
+# create project outline table
+# xquery('''
+# create table dmp.project_outlines (
+#     rkey int identity,
+#     project nvarchar(255),
+#     task_id int,
+#     task_name nvarchar(255),
+#     task_desc nvarchar(max),
+#     task_dependancies nvarchar(255),
+#     task_status nvarchar(255),
+#     owner nvarchar(255),
+#     create_date date,
+#     est_completion date,
+#     tbls_affected nvarchar(max)
+# )
+# ''','dmp_dev_env')
+
+xquery('''
+create table dmp.project_list (
+    rkey int identity,
+    project nvarchar(255),
+    project_desc nvarchar(255),
+    project_status nvarchar(255),
+    total_tasks int,
+    completed_tasks int,
+    project_lead nvarchar(255),
+    create_date date,
+    est_completion date
+)
+''','dmp_dev_env')
