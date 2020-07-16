@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module initialize_environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>initialize_environment</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5Cmstyx%5Canchor%5Cdevelopment_management_platform%5Cclasses%5Cinitialize_environment.py">c:\users\mstyx\anchor\development_management_platform\classes\initialize_environment.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="argparse.html">argparse</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="initialize_environment.html#setup">setup</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="setup">class <strong>setup</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#setup">setup</a>(azure_user,&nbsp;azure_pass,&nbsp;git_token,&nbsp;project_parent_dir=None,&nbsp;dev_mode=True)<br>
+&nbsp;<br>
+First&nbsp;time&nbsp;<a href="#setup">setup</a>&nbsp;tool<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="setup-__init__"><strong>__init__</strong></a>(self, azure_user, azure_pass, git_token, project_parent_dir=None, dev_mode=True)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="setup-add_env_path"><strong>add_env_path</strong></a>(self, dev_mode)</dt><dd><tt>Initializes&nbsp;the&nbsp;add&nbsp;env&nbsp;path&nbsp;routine.&nbsp;Loads&nbsp;the&nbsp;db_tools&nbsp;module.&nbsp;Executes&nbsp;appropriate&nbsp;function&nbsp;based&nbsp;on&nbsp;dev_mode&nbsp;status.<br>
+intput:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dev_mode&nbsp;(boolean,&nbsp;status&nbsp;of&nbsp;development&nbsp;mode)</tt></dd></dl>
+
+<dl><dt><a name="setup-dev_path"><strong>dev_path</strong></a>(self, db_tools)</dt><dd><tt>Adds&nbsp;the&nbsp;environment&nbsp;path&nbsp;for&nbsp;the&nbsp;user&nbsp;to&nbsp;the&nbsp;development&nbsp;server.&nbsp;Executes&nbsp;query&nbsp;to&nbsp;delete&nbsp;the&nbsp;path&nbsp;record&nbsp;for&nbsp;the&nbsp;current&nbsp;user,&nbsp;followed&nbsp;by&nbsp;another&nbsp;query&nbsp;to&nbsp;insert&nbsp;the&nbsp;new&nbsp;path&nbsp;record&nbsp;for&nbsp;the&nbsp;user.<br>
+input:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;db_tools&nbsp;module</tt></dd></dl>
+
+<dl><dt><a name="setup-module_from_file"><strong>module_from_file</strong></a>(self, module_name, src_path=None)</dt><dd><tt>Imports&nbsp;a&nbsp;module&nbsp;from&nbsp;a&nbsp;file&nbsp;path&nbsp;and&nbsp;returns&nbsp;the&nbsp;module&nbsp;as&nbsp;an&nbsp;<a href="builtins.html#object">object</a></tt></dd></dl>
+
+<dl><dt><a name="setup-prod_path"><strong>prod_path</strong></a>(self, db_tools)</dt><dd><tt>Adds&nbsp;the&nbsp;environment&nbsp;path&nbsp;for&nbsp;the&nbsp;user&nbsp;to&nbsp;the&nbsp;production&nbsp;server.&nbsp;Executes&nbsp;query&nbsp;to&nbsp;delete&nbsp;the&nbsp;path&nbsp;record&nbsp;for&nbsp;the&nbsp;current&nbsp;user,&nbsp;followed&nbsp;by&nbsp;another&nbsp;query&nbsp;to&nbsp;insert&nbsp;the&nbsp;new&nbsp;path&nbsp;record&nbsp;for&nbsp;the&nbsp;user.<br>
+input:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;db_tools&nbsp;module</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>dev_mode</strong> = True</td></tr></table>
+</body></html>

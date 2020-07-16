@@ -16,6 +16,7 @@ class config():
         self.config_dir = Path(dirname(current_dir))/'bin'
         self.config = self.module_from_file('config',self.config_dir)
         self.crd_mgr = self.module_from_file('credential_management',current_dir)
+        self.env_path = self.get_projects_home()
         self.user,self.password = self.get_azure_cred()
         self.az_svr,self.pr_db = self.get_azure_server_and_db()
 
@@ -118,6 +119,12 @@ class config():
         with open(self.config_dir/'dmp_k.cfg','wb') as f: pickle.dump(key,f)
         return key
 
+    def get_projects_home(self):
+        '''Opens the conf dictionary and grabs the projects env path variable'''
+
+        d = self.open_conf()
+        return d['paths']['dev_path']
+
     # open configuration file and return the dictionary object
     def open_conf(self):
         '''Opens the conf dictionary and cipher, decrypts the values and returns the dictionary object.'''
@@ -129,7 +136,7 @@ class config():
                 for k,v in d[key].items():
                     if k != 'encrypt': d[key][k] = self.crd_mgr.decrypt(v,c)
         return d
-    
+
     # take a dictionary object and save as configuration file
     def save_conf(self,new_conf_dict):
         '''Takes a dictionary object and overwrites the configuration dictionary.'''

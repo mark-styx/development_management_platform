@@ -16,7 +16,9 @@ def write_plot(module):
 
 df = df.T
 df['counts'] = 0
-agged = df[['test_module','outcome','test_function','counts']].groupby(['test_module','test_function','outcome']).agg('count')
+agged = df[['test_module','outcome','test_function','counts']].groupby(
+    ['test_module','test_function','outcome']
+    ).agg('count')
 agged = agged.reset_index()
 modules = agged['test_module'].unique()
 

@@ -3,13 +3,18 @@ from datetime import datetime as dt
 from glob import glob
 from pathlib import Path
 from os.path import abspath
+from os.path import dirname
 from inspect import getsourcefile
+
+from _conf import config
 
 class file_ops():
     '''Main project file interaction class.'''
 
     def __init__(self):
-        pass
+        self.current_dir = Path(dirname(abspath(getsourcefile(lambda:0))))
+        self.project_level = Path(dirname(self.current_dir))
+        self.projects_home = Path(dirname(self.project_level))
 
     def create_dir(self,dir_path,folder_name):
         '''Creates a directory, returns error if exists.
@@ -20,7 +25,7 @@ class file_ops():
         if Path.exists(dir_path/folder_name):
             return ('error','directory already exists')
         os.mkdir(dir_path/folder_name)
-        new_dir = dir_path/folder_name
+        new_dir = Path(dir_path/folder_name)
         print(f'directory {new_dir} created')
         return folder_name,new_dir
 
