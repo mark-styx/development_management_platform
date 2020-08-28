@@ -31,6 +31,7 @@ class new_project():
         # direct to db based on dev mode status
         if dev_mode: self.db = dbtools.local_dev()
         else: self.db = dbtools.azure_conn()
+        
         # instantiate git connection
         self.gconn = git_conn()
         self.fops = file_ops()

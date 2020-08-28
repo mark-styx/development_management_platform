@@ -1,13 +1,17 @@
 from _conf import config
 from github import Github
-import os
+import os,time
 
 class git_conn():
     '''Main git connection class object'''
 
     def __init__(self):
         '''Initializes the git connection object. Loads the configuration module and extracts the decrypted access token.'''
+        self.env()
 
+    def env(self):
+        '''Initialize the evironment variables and create attributes'''
+        
         conf = config()
         self.tkn = conf.get_git_token()
         self.git = Github(self.tkn)
@@ -16,6 +20,18 @@ class git_conn():
         self.org = self.git.get_organization('Dentsu-Aegis-Reporting-and-Automation')
         self.dev_team = [x for x in list(self.org.get_teams()) if 'dev_team' in x.name].pop()
 
+    def set_repo_perm(self,entity,repo_name,perm):
+        '''Update the repository permissions for a user or team.
+        input:
+            entity: (git team or user object)
+            repo_name (str, name of repository)
+            perm: (str, the permission level to be granted)'''
+
+        print(f'updating permissions for {repo_name}')
+        repo = self.org.get_repo(repo_name)
+        entity.set_repo_permission(repo,perm)
+        print('done')
+
     def create_repo(self,project_name):
         '''Creates a new git repository. Adds the dev_team as admins.
         input:
@@ -23,8 +39,6 @@ class git_conn():
 
         print(f'creating repository for {project_name}...')
         self.org.create_repo(project_name,private=True)
-        repo = self.org.get_repo(project_name)
-        self.dev_team.set_repo_permission(repo,'admin')
         print('done')
 
     def initialize_new_repo(self,path,project):

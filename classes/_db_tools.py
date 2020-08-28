@@ -36,12 +36,14 @@ class azure_conn():
 
     def build_azure_engine(self,server,database,user,password):
         '''Creates the connection engine used to make the connection to the Azure Server'''
+
         params = urllib.parse.quote_plus('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE='+ database + ';UID='+user+';PWD='+ password)
         engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
         return engine
 
     def prod_engine(self):
         '''Gets the credentials from the config dictionary, decrypts values and returns a connection engine for the production server/database'''
+
         engine = self.build_azure_engine(self.az_svr,self.pr_db,self.az_usr,self.az_pwd)
         return engine
 
@@ -49,12 +51,14 @@ class azure_conn():
         '''Creates odbc connection object:
         Accepts: server,database,user,password strings
         Returns: connection object'''
+
         cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE=' + dbname + ';UID=' + usr + ';PWD=' + pwd)
         return cnxn
     
     def xquery(self,target,query):
         '''Executes a query on a targetted database.
         target = ['prod'] | query = valid query string ('select * from dbo.example')'''
+
         db = {
             'prod':{'svr':self.az_svr,'db':self.pr_db,'usr':self.az_usr,'pwd':self.az_pwd}
         }
@@ -77,12 +81,15 @@ class local_dev():
         d = self.cf.open_conf()
         self.usr,self.pwd,_x = d['local_cred'].values()
         self.svr,self.db,_x = d['local_server'].values()
+        self.engine = self.build_engine()
 
     def general_connection(self,usr,pwd,svr,db):
+
         cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+svr+';DATABASE='+db+';UID='+usr+';PWD='+pwd)
         return cnxn
 
     def xquery(self,query):
+
         with self.general_connection(self.usr,self.pwd,self.svr,self.db) as cnxn:
             cur = cnxn.cursor()
             print('executing query')
@@ -91,3 +98,16 @@ class local_dev():
                 return cur.fetchall()
             except:
                 cur.close()
+
+    def build_local_engine(self,user,password,server,database):
+        '''Creates the connection engine used to make the connection to the Local Server'''
+
+        params = urllib.parse.quote_plus('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' + server + ';DATABASE='+ database + ';UID='+user+';PWD='+ password)
+        engine = create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+        return engine
+
+    def build_engine(self):
+        '''Gets the credentials from the config dictionary, decrypts values and returns a connection engine for the production server/database'''
+
+        engine = self.build_local_engine(self.usr,self.pwd,self.svr,self.db)
+        return engine

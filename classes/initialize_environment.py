@@ -49,7 +49,6 @@ class setup():
 
         print('adding path to prod server')
         tools = db_tools.azure_conn()
-        print('checking for duplicates:')
         tools.xquery(
             'prod',
             f"delete dmp.environment_paths where usr = '{self.azure_user}'"

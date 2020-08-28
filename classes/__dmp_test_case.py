@@ -1,5 +1,5 @@
 # general overhead
-import json
+import json,sys
 from datetime import datetime as dt
 
 # path tools
@@ -15,10 +15,14 @@ class test_case():
     def __init__(self):
         # overhead
         current_dir = Path(dirname(abspath(getsourcefile(lambda:0))))
+        sys.path.append(str(current_dir))
         self.test_dir = Path(dirname(current_dir))/r'testing/test_outcomes'
         self.config = self.module_from_file('_conf',current_dir)
         self.crd_mgr = self.module_from_file('credential_management',current_dir)
         self.db_tools = self.module_from_file('_db_tools',current_dir)
+        self.repo_tools = self.module_from_file('_repo_tools',current_dir)
+        self.proj_tools = self.module_from_file('_project_tools',current_dir)
+        self.fops = self.module_from_file('_file_ops',current_dir)
         self.env_params()
 
     def env_params(self):
