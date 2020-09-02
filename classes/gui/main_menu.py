@@ -69,10 +69,18 @@ class Project_Home(Frame):
         self.objects['view_archived'] = Btn(self.parent,(st_x,st_y + 60),txt='View Archived')
         self.objects['canvas'] = self.parent.create_rectangle(0,100,110,190,fill='#1c1c1f')
 
+    def clear_switches(self,tg_btn):
+        for btn in ['create','live_projects','bug_reporting','view_archived']:
+            if tg_btn not in btn:
+                if self.objects[btn].active:
+                    self.objects[btn].toggle()
+
     def proj_create_menu(self):
+        self.clear_switches('create')
         self.create_menu = Create_Menu(self.parent,self.objects,self.tools)
 
     def live_proj_menu(self):
+        self.clear_switches('live_projects')
         self.live_menu = Live_Menu(self.parent,self.objects,self.tools)
 
 class Live_Menu():
@@ -89,8 +97,28 @@ class Live_Menu():
         self.objects['live_menu']['selector'] = Cbx(
             self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),txt='Select Project')
         self.objects['live_menu']['accept_proj'] = Btn(
-            self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True)
+            self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True,
+            cmd=self.activate_project)
         self.objects['live_menu']['canvas'] = self.parent.create_rectangle(150,5,520,250,fill='#1c1c1f')
+    
+    def activate_project(self):
+        st_x,st_y = (175,65)
+        self.active_project = self.objects['live_menu']['selector'].get()
+        print(self.active_project)
+        self.objects['live_menu']['meta'] = {}
+        self.objects['live_menu']['meta']['title'] = Lbl(self.parent,'Title:\t test',(st_x,st_y))
+        self.objects['live_menu']['meta']['desc'] = Lbl(self.parent,'Desc:\t test',(st_x,st_y+20))
+        self.objects['live_menu']['meta']['status'] = Lbl(self.parent,'Status:\t test',(st_x,st_y+40))
+        self.objects['live_menu']['meta']['tot_tasks'] = Lbl(self.parent,'Tasks:\t test',(st_x,st_y+60))
+        self.objects['live_menu']['meta']['comp_tasks'] = Lbl(self.parent,'Comp:\t test',(st_x,st_y+80))
+        self.objects['live_menu']['meta']['lead'] = Lbl(self.parent,'Lead:\t test',(st_x,st_y+100))
+        self.objects['live_menu']['meta']['created'] = Lbl(self.parent,'Created:\t test',(st_x,st_y+120))
+        self.objects['live_menu']['meta']['est_comp'] = Lbl(self.parent,'Est_Comp: test',(st_x,st_y+140))
+
+    def active_project_menu(self):
+        ['Goto Repo','Edit Meta','Pull Repo','Update Repo','Update Outline','Unit Testing']
+        sidebar = ['Meta','Outline','Status']
+        pass
 
 
 class Create_Menu():
