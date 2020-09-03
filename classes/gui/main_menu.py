@@ -24,6 +24,7 @@ class Main_Menu(Root):
         self.menu.create_rectangle(0,0,110,80,fill='#1c1c1f')
 
     def destroy_all(self,obj_dict):
+        print(obj_dict)
         find_dicts = lambda X: [x for x in X if type(X[x]) is dict]
         sub = find_dicts(obj_dict)
         for x in sub:
@@ -105,26 +106,72 @@ class Live_Menu():
             self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True,
             cmd=self.activate_project)
         self.objects['live_menu']['canvas'] = self.parent.create_rectangle(150,5,520,250,fill='#1c1c1f')
+        self.sub_menu()
     
     def activate_project(self):
         self.active_project = 'test'#Outline(self.objects['live_menu']['selector'].get())
-        print(self.active_project)
+        try:
+            self.clear_switches('_all_')
+        except Exception as X:
+            print(str(X))
         self.active_project_menu()
 
     def active_project_menu(self):
         #['Goto Repo','Edit Meta','Pull Repo','Update Repo','Update Outline','Unit Testing']
         #sidebar = ['Meta','Outline','Status']
+        if self.objects['live_menu'].get('active'):
+            self.clear_switches('_all_')
+            self.destroy_all(self.objects['live_menu'].get('active'))
+        st_x,st_y = (410,60)
         self.objects['live_menu']['active'] = {}
         data = self.objects['live_menu'].get('active')
-        data['meta'] = Btn(
-            self.parent,txt='Meta',toggle=True,alt_clr=True,cmd=self.meta_view,deact_cmd=lambda: self.kill(data['view']),
-            loc=(410,60)
+        data['meta_btn'] = Btn(
+            self.parent,txt='Meta',toggle=True,alt_clr=True,cmd=self.meta_view,deact_cmd=lambda: self.kill(data['meta']),
+            loc=(st_x,st_y)
         )
+        data['outline_btn'] = Btn(
+            self.parent,txt='Outline',toggle=True,alt_clr=True,
+            #cmd=self.meta_view,deact_cmd=lambda: self.kill(data['view']),
+            loc=(st_x,st_y+20)
+        )
+        data['stats_btn'] = Btn(
+            self.parent,txt='Stats',toggle=True,alt_clr=True,
+            #cmd=self.meta_view,deact_cmd=lambda: self.kill(data['view']),
+            loc=(st_x,st_y+40)
+        )
+        for obj in self.objects['live_menu']['sub_menu'].values():
+            if type(obj) is Btn: obj.button['state'] = 'normal'
+
+    def sub_menu(self):
+        st_x,st_y = (5,215)
+        self.objects['live_menu']['sub_menu'] = {}
+        data = self.objects['live_menu'].get('sub_menu')
+        data['repo'] = Btn(
+            self.parent,(st_x,st_y),txt='Goto Repo'            
+            )
+        data['folder'] = Btn(
+            self.parent,(st_x,st_y + 20),txt='Goto Folder'
+            )
+        data['canvas'] = self.parent.create_rectangle(0,210,110,260,fill='#1c1c1f')
+        for obj in self.objects['live_menu']['sub_menu'].values():
+            if type(obj) is Btn:
+                obj.button['state'] = 'disabled'
+
+
+    def clear_switches(self,tg_btn):
+        scope = self.objects['live_menu'].get('active')
+        for btn in ['meta_btn','outline_btn','stats_btn']:
+            if tg_btn not in btn:
+                try:
+                    if scope[btn].active:
+                        scope[btn].toggle()
+                except Exception: continue
 
     def meta_view(self):
+        self.clear_switches('meta')
         st_x,st_y = (175,65)
-        self.objects['live_menu']['active']['meta']['view'] = {}
-        data = self.objects['live_menu']['active']['meta'].get('view')
+        self.objects['live_menu']['active']['meta'] = {}
+        data = self.objects['live_menu']['active'].get('meta')
         data['title'] = Lbl(self.parent,'Title:\t test',(st_x,st_y))
         data['desc'] = Lbl(self.parent,'Desc:\t test',(st_x,st_y+20))
         data['status'] = Lbl(self.parent,'Status:\t test',(st_x,st_y+40))

@@ -10,13 +10,13 @@ class Btn():
             border=True,alt_clr=False
         ):
         if not alt_clr:
-            bg = '#1c1c1f';fg='white'
+            self.bg = '#1c1c1f';self.fg='white'
         else:
-            bg = '#292e30';fg='white'
+            self.bg = '#292e30';self.fg='white'
         self.cmd,self.deact_cmd = cmd,deact_cmd
         if toggle: cmd = self.toggle
         self.button = Button(
-            parent,image=img,bg=bg,fg=fg,command=cmd,text=txt,
+            parent,image=img,bg=self.bg,fg=self.fg,command=cmd,text=txt,
             highlightthickness=0,borderwidth=0)
         self.button.place(x=loc[0],y=loc[1],width=size[0],height=size[1])
         if label:
@@ -43,12 +43,12 @@ class Btn():
 
         elif self.active:
             self.active = False
-            self.button.config(relief='raised',bg='#1c1c1f',fg='white')
+            self.button.config(relief='raised',bg=self.bg,fg=self.fg)
             self.deact_cmd()
     
     def deactivate(self):
         self.active = False
-        self.button.config(relief='raised',bg='#1c1c1f',fg='white')
+        self.button.config(relief='raised',bg=self.bg,fg=self.fg)
 
     def destroy(self):
         self.button.destroy()
