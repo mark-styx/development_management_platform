@@ -9,10 +9,13 @@ from glob import glob
 
 sys.path.append(dirname(dirname(abspath(getsourcefile(lambda:0)))))
 
+from _conf import config
+
 class Root():
 
     def __init__(self):
         self.root = Tk()
+        self.conf = config()
         self.app_objects = {
             'images':{},
             'icons':{}
@@ -20,16 +23,28 @@ class Root():
         self.get_images()
         self.app_color = '#292e30' #'#1a1a1f'#222233'
         self.style = Style()
-        self.style.theme_create('combostyle', parent='alt',
-                         settings = {'TCombobox':
-                                     {'configure':
-                                      {'selectbackground': self.app_color,
-                                       'fieldbackground': self.app_color,
-                                       'background': '#856c14',
-                                       'foreground':'white',
-                                       'focusfill':self.app_color
-                                       }}}
-                         )
+        self.style.theme_create(
+            'combostyle',
+            parent='alt',
+            settings = {
+                'TCombobox':{
+                    'configure':{
+                        'selectbackground': self.app_color,
+                        'fieldbackground': self.app_color,
+                        'background': '#856c14',
+                        'foreground':'white',
+                        'focusfill':self.app_color
+                                }
+                            },
+                'Treeview':{
+                    'configure':{
+                        'background':self.app_color,
+                        'fieldbackground':self.app_color,
+                        'foreground':'white'
+                        }
+                    }
+                }
+            )
         self.style.theme_use('combostyle') 
         self.build_interface()
 

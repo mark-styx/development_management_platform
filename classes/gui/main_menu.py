@@ -43,18 +43,23 @@ class Main_Menu(Root):
         
     def toggle_project_home(self,action='create'):
         if action == 'create':
-            self.project_home = Project_Home(self.menu,{'kill':self.kill,'destroy':self.destroy_all})
+            self.project_home = Project_Home(
+                self.menu,{'kill':self.kill,'destroy':self.destroy_all},self.conf.env_path
+                )
             self.project_home.setup()
         elif action == 'destroy':
             self.project_home.destroy_all(self.project_home.objects)
 
 
+from create_menu import Create_Menu
 from mk_cbx import Cbx,Ent,Txt
+#from mk_btn import Btn
 from mk_lbl import Lbl
 
 class Project_Home(Frame):
 
-    def __init__(self,parent,tools):
+    def __init__(self,parent,tools,proj_home):
+        self.proj_home = proj_home
         self.parent = parent;self.tools = tools
         self.kill,self.destroy_all = tools['kill'],tools['destroy']
         self.objects = {}
@@ -82,26 +87,32 @@ class Project_Home(Frame):
 
     def live_proj_menu(self):
         self.clear_switches('live_projects')
-        self.live_menu = Live_Menu(self.parent,self.objects,self.tools)
+        self.live_menu = Live_Menu(self.parent,self.objects,self.tools,self.proj_home)
+
 
 from project.outline import Outline
 from project.project import Project
+from doc_manager import doc_manager
+
+from subprocess import Popen
+import webbrowser
 
 class Live_Menu():
     
-    def __init__(self,parent,objects,tools):
+    def __init__(self,parent,objects,tools,proj_home):
         self.parent = parent
         self.objects = objects
+        self.proj_home = proj_home
         self.kill,self.destroy_all = tools['kill'],tools['destroy']
-        #proj_list,fields = Project(find=True).view_all()
-        #self.live_proj_list = [x for x in proj_list if 'active' in x[4]]
+        proj_list,fields = Project(find=True).view_all()
+        self.live_proj_list = [x for x in proj_list if 'active' in x[4]]
         self.live_menu()
 
     def live_menu(self):
         st_x,st_y = (260,25)
         self.objects['live_menu'] = {}
         self.objects['live_menu']['selector'] = Cbx(
-            self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),txt='Select Project')#,values=[x[1] for x in self.live_proj_list])
+            self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),txt='Select Project',values=[x[1] for x in self.live_proj_list])
         self.objects['live_menu']['accept_proj'] = Btn(
             self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True,
             cmd=self.activate_project)
@@ -109,7 +120,8 @@ class Live_Menu():
         self.sub_menu()
     
     def activate_project(self):
-        self.active_project = 'test'#Outline(self.objects['live_menu']['selector'].get())
+        self.active_project = Outline(self.objects['live_menu']['selector'].get())
+        self.doc_mgr = doc_manager(self.active_project.title)
         try:
             self.clear_switches('_all_')
         except Exception as X:
@@ -117,8 +129,6 @@ class Live_Menu():
         self.active_project_menu()
 
     def active_project_menu(self):
-        #['Goto Repo','Edit Meta','Pull Repo','Update Repo','Update Outline','Unit Testing']
-        #sidebar = ['Meta','Outline','Status']
         if self.objects['live_menu'].get('active'):
             self.clear_switches('_all_')
             self.destroy_all(self.objects['live_menu'].get('active'))
@@ -132,14 +142,20 @@ class Live_Menu():
         data['outline_btn'] = Btn(
             self.parent,txt='Outline',toggle=True,alt_clr=True,
             cmd=self.outline_view,
-            #deact_cmd=lambda: self.kill(data['view']),
+            deact_cmd=lambda: self.kill(data['outline']),
             loc=(st_x,st_y+20)
         )
         data['stats_btn'] = Btn(
             self.parent,txt='Stats',toggle=True,alt_clr=True,
             cmd=self.stats_view,
-            # deact_cmd=lambda: self.kill(data['view']),
+            deact_cmd=lambda: self.kill(data['stats']),
             loc=(st_x,st_y+40)
+        )
+        data['act_btn'] = Btn(
+            self.parent,txt='Actions',toggle=True,alt_clr=True,
+            cmd=self.actions_view,
+            deact_cmd=lambda: self.kill(data['actions']),
+            loc=(st_x,st_y+60)
         )
         for obj in self.objects['live_menu']['sub_menu'].values():
             if type(obj) is Btn: obj.button['state'] = 'normal'
@@ -149,19 +165,32 @@ class Live_Menu():
         self.objects['live_menu']['sub_menu'] = {}
         data = self.objects['live_menu'].get('sub_menu')
         data['repo'] = Btn(
-            self.parent,(st_x,st_y),txt='Goto Repo'            
+            self.parent,(st_x,st_y),txt='Goto Repo',
+            cmd=lambda:[
+                webbrowser.open(
+                    f'https://github.com/Dentsu-Aegis-Reporting-and-Automation/{self.active_project.title}')
+                ]
             )
         data['folder'] = Btn(
-            self.parent,(st_x,st_y + 20),txt='Goto Folder'
+            self.parent,(st_x,st_y + 20),txt='Goto Folder',
+            cmd=lambda:[
+                Popen(f'''explorer /select,"{str(self.proj_home/self.active_project.title)}"''')
+                ]
             )
-        data['canvas'] = self.parent.create_rectangle(0,210,110,260,fill='#1c1c1f')
-        for obj in self.objects['live_menu']['sub_menu'].values():
+        data['queue'] = Btn(
+            self.parent,(st_x,st_y + 40),txt='Req Queue',
+            cmd=lambda:[
+                ]
+            )
+        data['canvas'] = self.parent.create_rectangle(0,210,110,280,fill='#1c1c1f')
+        for obj in data.values():
             if type(obj) is Btn:
                 obj.button['state'] = 'disabled'
+        data['queue'].button['state'] = 'normal'
 
     def clear_switches(self,tg_btn):
         scope = self.objects['live_menu'].get('active')
-        for btn in ['meta_btn','outline_btn','stats_btn']:
+        for btn in ['meta_btn','outline_btn','stats_btn','act_btn']:
             if tg_btn not in btn:
                 try:
                     if scope[btn].active:
@@ -170,87 +199,58 @@ class Live_Menu():
 
     def meta_view(self):
         self.clear_switches('meta')
-        st_x,st_y = (175,65)
+        st_x,st_y = (155,60)
         self.objects['live_menu']['active']['meta'] = {}
         data = self.objects['live_menu']['active'].get('meta')
-        data['title'] = Lbl(self.parent,'Title:\t test',(st_x,st_y))
-        data['desc'] = Lbl(self.parent,'Desc:\t test',(st_x,st_y+20))
-        data['status'] = Lbl(self.parent,'Status:\t test',(st_x,st_y+40))
-        data['tot_tasks'] = Lbl(self.parent,'Tasks:\t test',(st_x,st_y+60))
-        data['comp_tasks'] = Lbl(self.parent,'Comp:\t test',(st_x,st_y+80))
-        data['lead'] = Lbl(self.parent,'Lead:\t test',(st_x,st_y+100))
-        data['created'] = Lbl(self.parent,'Created:\t test',(st_x,st_y+120))
-        data['est_comp'] = Lbl(self.parent,'Est_Comp: test',(st_x,st_y+140))
+        data['title'] = Lbl(self.parent,'Title:',(st_x,st_y),size=(55,20))
+        data['title_txt'] = Lbl(self.parent,f'{self.active_project.title}',(st_x+55,st_y),size=(200,20))
+        data['desc'] = Lbl(self.parent,'Desc:',(st_x,st_y+20),size=(55,20))
+        data['desc_txt'] = Lbl(self.parent,f'{self.active_project.desc}',(st_x+55,st_y+20),size=(200,20))
+        data['status'] = Lbl(self.parent,'Status:',(st_x,st_y+40),size=(55,20))
+        data['status_txt'] = Lbl(self.parent,f'{self.active_project.status}',(st_x+55,st_y+40),size=(200,20))
+        data['tot_tasks'] = Lbl(self.parent,'Tasks:',(st_x,st_y+60),size=(55,20))
+        data['tot_tasks_txt'] = Lbl(self.parent,f'{self.active_project.tasks}',(st_x+55,st_y+60),size=(200,20))
+        data['comp_tasks'] = Lbl(self.parent,'Comp:',(st_x,st_y+80),size=(55,20))
+        data['comp_tasks_txt'] = Lbl(self.parent,f'{self.active_project.comp}',(st_x+55,st_y+80),size=(200,20))
+        data['lead'] = Lbl(self.parent,'Lead:',(st_x,st_y+100),size=(55,20))
+        data['lead_txt'] = Lbl(self.parent,f'{self.active_project.lead}',(st_x+55,st_y+100),size=(200,20))
+        data['created'] = Lbl(self.parent,'Created:',(st_x,st_y+120),size=(55,20))
+        data['created_txt'] = Lbl(self.parent,f'{self.active_project.created}',(st_x+55,st_y+120),size=(200,20))
+        data['est_comp'] = Lbl(self.parent,'Est_Comp:',(st_x,st_y+140),size=(55,20))
+        data['est_comp_txt'] = Lbl(self.parent,f'{self.active_project.est_comp}',(st_x+55,st_y+140),size=(200,20))
 
     def outline_view(self):
         self.clear_switches('outline')
-        st_x,st_y = (175,65)
+        st_x,st_y = (155,60)
         self.objects['live_menu']['active']['outline'] = {}
         data = self.objects['live_menu']['active'].get('outline')
-    
+        fields,records = self.active_project.ui_outline()
+        outline = ''
+        for rec in records:
+            outline += f'{fields[0]}: {rec[0]}\n\t{fields[1]}: {rec[1]}\n\t{fields[2]}: {rec[2]}\n\t{fields[3]}: {rec[3]}\n\n'
+        data['body'] = Txt(self.parent,(st_x,st_y),size=(250,185))
+        data['body'].text.insert('end',outline)
+        data['body'].text['state'] = 'disabled'
+
     def stats_view(self):
         self.clear_switches('stats')
-        st_x,st_y = (175,65)
+        st_x,st_y = (155,60)
         self.objects['live_menu']['active']['stats'] = {}
         data = self.objects['live_menu']['active'].get('stats')
+        stats = self.doc_mgr.build_stats()
+        data['body'] = Txt(self.parent,(st_x,st_y),size=(250,185))
+        data['body'].text.insert('end',stats)
+        data['body'].text['state'] = 'disabled'
 
-
-
-class Create_Menu():
-    
-    def __init__(self,parent,objects,tools):
-        self.parent = parent
-        self.objects = objects
-        self.kill,self.destroy_all = tools['kill'],tools['destroy']
-        self.create_menu()
-
-    def create_menu(self):
-        st_x,st_y = (5,215)
-        self.objects['create_menu'] = {}
-        self.objects['create_menu']['ad_hoc'] = Btn(
-            self.parent,(st_x,st_y),txt='Ad Hoc',cmd=lambda:self.create_inputs('Ad Hoc'),
-            toggle=True,deact_cmd=lambda:self.kill(self.objects['create_menu']['input_form'])
-            )
-        self.objects['create_menu']['full'] = Btn(
-            self.parent,(st_x,st_y + 20),txt='Full Project',cmd=lambda:self.create_inputs(),
-            toggle=True,deact_cmd=lambda:self.kill(self.objects['create_menu']['input_form'])
-            )
-        self.objects['create_menu']['canvas'] = self.parent.create_rectangle(0,210,110,260,fill='#1c1c1f')
-
-    def create_inputs(self,category='Full Project'):
-        st_x,st_y = (300,10)
-        if self.objects['create_menu']['full'].active and self.objects['create_menu']['ad_hoc'].active:
-            if category == 'Full Project': self.objects['create_menu']['ad_hoc'].toggle()
-            else: self.objects['create_menu']['full'].toggle()
-        self.objects['create_menu']['input_form'] = {}
-        self.objects['create_menu']['input_form']['header'] = Lbl(
-            self.parent,category,(st_x+(.5*len(category)),st_y))
-        self.objects['create_menu']['input_form']['title'] = Ent(
-            self.parent,(st_x,st_y+30),(150,20),label=True,txt='Title')
-        self.objects['create_menu']['input_form']['desc'] = Txt(
-            self.parent,(st_x,st_y+50),(150,100),label=True,txt='Description')
-        self.objects['create_menu']['input_form']['lead'] = Cbx(
-            self.parent,(st_x,st_y+150),(150,20),label=True,txt='Lead')
-        self.objects['create_menu']['input_form']['cancel'] = Btn(
-            self.parent,(st_x-100,st_y+200),txt='Cancel',alt_clr=True,
-            cmd=lambda:[
-                self.kill(self.objects['create_menu']['input_form']),
-                self.objects['create_menu']['ad_hoc'].deactivate(),
-                self.objects['create_menu']['full'].deactivate()
-                ])
-        self.objects['create_menu']['input_form']['accept'] = Btn(
-            self.parent,(st_x+50,st_y+200),txt='Accept',alt_clr=True,
-            cmd=lambda:print(self.get_create_inputs()))
-        self.objects['create_menu']['input_form']['canvas'] = self.parent.create_rectangle(
-            150,5,520,250,fill='#1c1c1f')
-
-    def get_create_inputs(self):
-        return {
-            'type': self.objects['create_menu']['input_form']['header'].label['text'],
-            'title': self.objects['create_menu']['input_form']['title'].get(),
-            'desc': self.objects['create_menu']['input_form']['desc'].get(),
-            'lead': self.objects['create_menu']['input_form']['lead'].get()
-            }
+    def actions_view(self):
+        self.clear_switches('act_btn')
+        st_x,st_y = (155,60)
+        self.objects['live_menu']['active']['actions'] = {}
+        data = self.objects['live_menu']['active'].get('actions')
+        #['Goto Repo','Edit Meta','Pull Repo','Update Repo','Update Outline','Unit Testing']
+        repo = ['pull_repo','update_repo','update_docs']
+        proj = ['edit_meta','update_outline','update_status','submit_to_testing']
+        dvlp = ['create_units','reclaim_units','compile_units']
 
 
 

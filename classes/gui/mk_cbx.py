@@ -69,7 +69,7 @@ class Txt():
         ):
 
         self.text = Text(
-            parent,bg='#292e30',fg='white',wrap=WORD,width=width,height=height,
+            parent,bg='#292e30',fg='white',wrap=WORD,#width=width,height=height,
             font=('TkDefaultFont',8)
             )
         x,y = loc; w,h = size

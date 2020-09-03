@@ -29,9 +29,14 @@ class Project():
 
     def get_attrs(self,rkey):
         meta = self.dbcon.xquery(
-            f'select project,project_desc,project_status,project_lead from dmp.project_list where rkey = {rkey}'
+            f'''
+            select 
+                project,project_desc,project_status,project_lead,total_tasks,completed_tasks,
+                create_date,est_completion
+            from dmp.project_list
+            where rkey = {rkey}'''
             ).pop()
-        self.title,self.desc,self.status,self.lead = meta
+        self.title,self.desc,self.status,self.lead,self.tasks,self.comp,self.created,self.est_comp = meta
 
     def get_rkey(self):
         res,_ = self.view_all()

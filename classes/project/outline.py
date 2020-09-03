@@ -26,3 +26,8 @@ class Outline(Project):
     def update_outline(self,field,task,value):
         q = f"update dmp.project_outlines set {field} = '{value}' where project = '{self.title}' and task_name = '{task}'"
         self.dbcon.xquery(q)
+
+    def ui_outline(self):
+        fields = ['task_id','task_name','task_status','owner']
+        reslts = self.dbcon.xquery(f"select {','.join(fields)} from dmp.project_outlines  where project = '{self.title}'")
+        return fields,reslts
