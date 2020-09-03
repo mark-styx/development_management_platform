@@ -83,42 +83,58 @@ class Project_Home(Frame):
         self.clear_switches('live_projects')
         self.live_menu = Live_Menu(self.parent,self.objects,self.tools)
 
+from project.outline import Outline
+from project.project import Project
+
 class Live_Menu():
     
     def __init__(self,parent,objects,tools):
         self.parent = parent
         self.objects = objects
         self.kill,self.destroy_all = tools['kill'],tools['destroy']
+        #proj_list,fields = Project(find=True).view_all()
+        #self.live_proj_list = [x for x in proj_list if 'active' in x[4]]
         self.live_menu()
 
     def live_menu(self):
         st_x,st_y = (260,25)
         self.objects['live_menu'] = {}
         self.objects['live_menu']['selector'] = Cbx(
-            self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),txt='Select Project')
+            self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),txt='Select Project')#,values=[x[1] for x in self.live_proj_list])
         self.objects['live_menu']['accept_proj'] = Btn(
             self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True,
             cmd=self.activate_project)
         self.objects['live_menu']['canvas'] = self.parent.create_rectangle(150,5,520,250,fill='#1c1c1f')
     
     def activate_project(self):
-        st_x,st_y = (175,65)
-        self.active_project = self.objects['live_menu']['selector'].get()
+        self.active_project = 'test'#Outline(self.objects['live_menu']['selector'].get())
         print(self.active_project)
-        self.objects['live_menu']['meta'] = {}
-        self.objects['live_menu']['meta']['title'] = Lbl(self.parent,'Title:\t test',(st_x,st_y))
-        self.objects['live_menu']['meta']['desc'] = Lbl(self.parent,'Desc:\t test',(st_x,st_y+20))
-        self.objects['live_menu']['meta']['status'] = Lbl(self.parent,'Status:\t test',(st_x,st_y+40))
-        self.objects['live_menu']['meta']['tot_tasks'] = Lbl(self.parent,'Tasks:\t test',(st_x,st_y+60))
-        self.objects['live_menu']['meta']['comp_tasks'] = Lbl(self.parent,'Comp:\t test',(st_x,st_y+80))
-        self.objects['live_menu']['meta']['lead'] = Lbl(self.parent,'Lead:\t test',(st_x,st_y+100))
-        self.objects['live_menu']['meta']['created'] = Lbl(self.parent,'Created:\t test',(st_x,st_y+120))
-        self.objects['live_menu']['meta']['est_comp'] = Lbl(self.parent,'Est_Comp: test',(st_x,st_y+140))
+        self.active_project_menu()
 
     def active_project_menu(self):
-        ['Goto Repo','Edit Meta','Pull Repo','Update Repo','Update Outline','Unit Testing']
-        sidebar = ['Meta','Outline','Status']
-        pass
+        #['Goto Repo','Edit Meta','Pull Repo','Update Repo','Update Outline','Unit Testing']
+        #sidebar = ['Meta','Outline','Status']
+        self.objects['live_menu']['active'] = {}
+        data = self.objects['live_menu'].get('active')
+        data['meta'] = Btn(
+            self.parent,txt='Meta',toggle=True,alt_clr=True,cmd=self.meta_view,deact_cmd=lambda: self.kill(data['view']),
+            loc=(410,60)
+        )
+
+    def meta_view(self):
+        st_x,st_y = (175,65)
+        self.objects['live_menu']['active']['meta']['view'] = {}
+        data = self.objects['live_menu']['active']['meta'].get('view')
+        data['title'] = Lbl(self.parent,'Title:\t test',(st_x,st_y))
+        data['desc'] = Lbl(self.parent,'Desc:\t test',(st_x,st_y+20))
+        data['status'] = Lbl(self.parent,'Status:\t test',(st_x,st_y+40))
+        data['tot_tasks'] = Lbl(self.parent,'Tasks:\t test',(st_x,st_y+60))
+        data['comp_tasks'] = Lbl(self.parent,'Comp:\t test',(st_x,st_y+80))
+        data['lead'] = Lbl(self.parent,'Lead:\t test',(st_x,st_y+100))
+        data['created'] = Lbl(self.parent,'Created:\t test',(st_x,st_y+120))
+        data['est_comp'] = Lbl(self.parent,'Est_Comp: test',(st_x,st_y+140))
+
+
 
 
 class Create_Menu():
