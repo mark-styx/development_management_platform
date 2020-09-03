@@ -247,11 +247,23 @@ class Live_Menu():
         st_x,st_y = (155,60)
         self.objects['live_menu']['active']['actions'] = {}
         data = self.objects['live_menu']['active'].get('actions')
-        #['Goto Repo','Edit Meta','Pull Repo','Update Repo','Update Outline','Unit Testing']
-        repo = ['pull_repo','update_repo','update_docs']
-        proj = ['edit_meta','update_outline','update_status','submit_to_testing']
-        dvlp = ['create_units','reclaim_units','compile_units']
 
+        data['repo_head'] = Lbl(self.parent,'Repo',(st_x+25,st_y),size=(50,20))
+        data['pull_repo'] = Btn(self.parent,(st_x,st_y+20),txt='Pull Repo',alt_clr=True)
+        data['update_repo'] = Btn(self.parent,(st_x,st_y+40),txt='Update Repo',alt_clr=True)
+        data['update_docs'] = Btn(self.parent,(st_x,st_y+60),txt='Update Docs',alt_clr=True)
 
+        data['proj_head'] = Lbl(self.parent,'Project',(st_x+25,st_y+85),size=(50,20))
+        data['edit_meta'] = Btn(self.parent,(st_x,st_y+105),txt='Edit Meta',alt_clr=True)
+        data['update_outline'] = Btn(self.parent,(st_x,st_y+125),txt='Update Outline',alt_clr=True)
+        data['update_status'] = Btn(self.parent,(st_x,st_y+145),txt='Update Status',alt_clr=True)
+        data['submit_to_testing'] = Btn(self.parent,(st_x,st_y+165),txt='Submit to Testing',alt_clr=True)
+        
+        data['dvlp_head'] = Lbl(self.parent,'Develop',(st_x+150,st_y),size=(50,20))
+        data['create_units'] = Btn(self.parent,(st_x+125,st_y+20),txt='Create Units',alt_clr=True)
+        data['reclaim_units'] = Btn(self.parent,(st_x+125,st_y+40),txt='Reclaim Units',alt_clr=True)
+        data['compile_units'] = Btn(self.parent,(st_x+125,st_y+60),txt='Compile Units',alt_clr=True)
+
+    
 
 Main_Menu()
