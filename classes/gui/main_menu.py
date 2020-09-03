@@ -131,12 +131,14 @@ class Live_Menu():
         )
         data['outline_btn'] = Btn(
             self.parent,txt='Outline',toggle=True,alt_clr=True,
-            #cmd=self.meta_view,deact_cmd=lambda: self.kill(data['view']),
+            cmd=self.outline_view,
+            #deact_cmd=lambda: self.kill(data['view']),
             loc=(st_x,st_y+20)
         )
         data['stats_btn'] = Btn(
             self.parent,txt='Stats',toggle=True,alt_clr=True,
-            #cmd=self.meta_view,deact_cmd=lambda: self.kill(data['view']),
+            cmd=self.stats_view,
+            # deact_cmd=lambda: self.kill(data['view']),
             loc=(st_x,st_y+40)
         )
         for obj in self.objects['live_menu']['sub_menu'].values():
@@ -156,7 +158,6 @@ class Live_Menu():
         for obj in self.objects['live_menu']['sub_menu'].values():
             if type(obj) is Btn:
                 obj.button['state'] = 'disabled'
-
 
     def clear_switches(self,tg_btn):
         scope = self.objects['live_menu'].get('active')
@@ -181,6 +182,17 @@ class Live_Menu():
         data['created'] = Lbl(self.parent,'Created:\t test',(st_x,st_y+120))
         data['est_comp'] = Lbl(self.parent,'Est_Comp: test',(st_x,st_y+140))
 
+    def outline_view(self):
+        self.clear_switches('outline')
+        st_x,st_y = (175,65)
+        self.objects['live_menu']['active']['outline'] = {}
+        data = self.objects['live_menu']['active'].get('outline')
+    
+    def stats_view(self):
+        self.clear_switches('stats')
+        st_x,st_y = (175,65)
+        self.objects['live_menu']['active']['stats'] = {}
+        data = self.objects['live_menu']['active'].get('stats')
 
 
 
