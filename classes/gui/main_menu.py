@@ -15,6 +15,7 @@ class Main_Menu(Root):
         self.menu = Canvas(self.root)
         self.menu.config(bg=self.app_color)
         self.menu.pack(expand=True,fill='both')
+        self.menu.create_image(300,168.5,image=self.app_objects['images']['bkgd2'])
         st_x,st_y = (5,10)
         self.app_objects['main_menu']['project_home'] = Btn(
             self.menu,(st_x,st_y),txt='Project Home',toggle=True,cmd=self.toggle_project_home,deact_cmd=lambda:self.toggle_project_home('destroy')
@@ -30,6 +31,12 @@ class Main_Menu(Root):
         for x in sub:
             _sub = find_dicts(obj_dict[x])
             for _x in _sub:
+                __sub = find_dicts(obj_dict[x][_x])
+                for __x in __sub:
+                    ___sub = find_dicts(obj_dict[x][_x][__x])
+                    for ___x in ___sub:
+                        self.kill(obj_dict[x][_x][__x].pop(___x))
+                    self.kill(obj_dict[x][_x].pop(__x))
                 self.kill(obj_dict[x].pop(_x))
             self.kill(obj_dict.pop(x))
         self.kill(obj_dict)
@@ -93,16 +100,25 @@ class Project_Home(Frame):
 from project.outline import Outline
 from project.project import Project
 from doc_manager import doc_manager
+from _repo_tools import git_conn
 
+#from mk_cbx import Cbx,Ent,Txt
+#from mk_btn import Btn
+#from mk_lbl import Lbl
+
+from tkinter.filedialog import askopenfilename
+import os.path as osP
 from subprocess import Popen
 import webbrowser
 
 class Live_Menu():
     
     def __init__(self,parent,objects,tools,proj_home):
+        self.gconn = git_conn()
         self.parent = parent
         self.objects = objects
         self.proj_home = proj_home
+        self.tools = tools
         self.kill,self.destroy_all = tools['kill'],tools['destroy']
         proj_list,fields = Project(find=True).view_all()
         self.live_proj_list = [x for x in proj_list if 'active' in x[4]]
@@ -249,21 +265,142 @@ class Live_Menu():
         data = self.objects['live_menu']['active'].get('actions')
 
         data['repo_head'] = Lbl(self.parent,'Repo',(st_x+25,st_y),size=(50,20))
-        data['pull_repo'] = Btn(self.parent,(st_x,st_y+20),txt='Pull Repo',alt_clr=True)
-        data['update_repo'] = Btn(self.parent,(st_x,st_y+40),txt='Update Repo',alt_clr=True)
-        data['update_docs'] = Btn(self.parent,(st_x,st_y+60),txt='Update Docs',alt_clr=True)
-
-        data['proj_head'] = Lbl(self.parent,'Project',(st_x+25,st_y+85),size=(50,20))
-        data['edit_meta'] = Btn(self.parent,(st_x,st_y+105),txt='Edit Meta',alt_clr=True)
-        data['update_outline'] = Btn(self.parent,(st_x,st_y+125),txt='Update Outline',alt_clr=True)
-        data['update_status'] = Btn(self.parent,(st_x,st_y+145),txt='Update Status',alt_clr=True)
-        data['submit_to_testing'] = Btn(self.parent,(st_x,st_y+165),txt='Submit to Testing',alt_clr=True)
-        
+        data['pull_repo'] = Btn(
+            self.parent,(st_x,st_y+20),txt='Pull Repo',alt_clr=True,cmd=lambda:[
+                self.csa(data,'pull_repo'),
+                self.gconn.pull_repo(self.active_project.title)
+                ]
+            )
+        data['clone_repo'] = Btn(
+            self.parent,(st_x,st_y+40),txt='Clone Repo',alt_clr=True,cmd=lambda:[
+                self.csa(data,'clone_repo'),
+                self.gconn.clone_repo(self.active_project.title)
+                ]
+            )
+        data['add_files'] = Btn(
+            self.parent,(st_x,st_y+60),txt='Add Files',alt_clr=True,
+            cmd=lambda:[self.csa(data,'add_files'),self.add_files()],
+            deact_cmd=lambda:self.kill(data['add_files_sub']),toggle=True
+            )
+        data['update_repo'] = Btn(self.parent,(st_x,st_y+80),txt='Update Repo',alt_clr=True,cmd=lambda:[
+            self.csa(data,'update_repo'),
+            self.gconn.update_repo(self.active_project.title)
+            ]
+        )
+        data['update_docs'] = Btn(self.parent,(st_x,st_y+100),txt='Update Docs',alt_clr=True,cmd=lambda:[
+            self.csa(data,'update_docs'),
+            self.doc_mgr.update_doc_package(),
+            self.gconn.update_repo(self.active_project.title)
+            ]
+        )
+        data['proj_head'] = Lbl(self.parent,'Project',(st_x+150,st_y+85),size=(50,20))
+        data['edit_meta'] = Btn(self.parent,(st_x+125,st_y+105),txt='Edit Meta',alt_clr=True,cmd=lambda:[
+            self.csa(data,'edit_meta')
+            ]
+        )
+        data['update_outline'] = Btn(self.parent,(st_x+125,st_y+125),txt='Update Outline',alt_clr=True,cmd=lambda:[
+            self.csa(data,'update_outline')
+            ]
+        )
+        data['update_status'] = Btn(self.parent,(st_x+125,st_y+145),txt='Update Status',alt_clr=True,cmd=lambda:[
+            self.csa(data,'update_status')
+            ]
+        )
+        data['submit_to_testing'] = Btn(self.parent,(st_x+125,st_y+165),txt='Submit to Testing',alt_clr=True,cmd=lambda:[
+            self.csa(data,'submit_to_testing')
+            ]
+        )
         data['dvlp_head'] = Lbl(self.parent,'Develop',(st_x+150,st_y),size=(50,20))
-        data['create_units'] = Btn(self.parent,(st_x+125,st_y+20),txt='Create Units',alt_clr=True)
-        data['reclaim_units'] = Btn(self.parent,(st_x+125,st_y+40),txt='Reclaim Units',alt_clr=True)
-        data['compile_units'] = Btn(self.parent,(st_x+125,st_y+60),txt='Compile Units',alt_clr=True)
+        data['create_units'] = Btn(self.parent,(st_x+125,st_y+20),txt='Create Units',alt_clr=True,cmd=lambda:[
+            self.csa(data,'create_units')
+            ]
+        )
+        data['reclaim_units'] = Btn(self.parent,(st_x+125,st_y+40),txt='Reclaim Units',alt_clr=True,cmd=lambda:[
+            self.csa(data,'reclaim_units')
+            ]
+        )
+        data['compile_units'] = Btn(self.parent,(st_x+125,st_y+60),txt='Compile Units',alt_clr=True,cmd=lambda:[
+            self.csa(data,'compile_units'),
+            self.unit_wdw()
+            ],
+            deact_cmd=lambda:self.unit_win.unit_viewer.destroy(),toggle=True
+        )
 
+    def csa(self,scope,tg_btn):
+        btns = []
+        for obj in scope:
+            if type(scope[obj]) is Btn:
+                btns.append(obj)
+        for btn in btns:
+            if tg_btn not in btn:
+                try:
+                    if scope[btn].active:
+                        print(scope[btn],btn)
+                        scope[btn].toggle()
+                except Exception: continue
+
+    def add_files(self):
+        st_x,st_y = (155,185)
+        data = self.objects['live_menu']['active'].get('actions')
+        data['add_files_sub'] = {};data = data.get('add_files_sub')
+        data['add_head'] = Lbl(self.parent,'Add Files',(st_x+25,st_y),size=(50,20))
+        data['add_single'] = Btn(
+            self.parent,(st_x,st_y+20),txt='Single File',alt_clr=True,cmd=self.add_single
+            )
+        data['add_all'] = Btn(
+            self.parent,(st_x,st_y+40),txt='All Files',alt_clr=True,cmd=lambda:[
+                self.gconn.add_all_files_to_repo(str(self.proj_home/self.active_project.title),self.active_project.title)
+                ]
+            )
+
+    def add_single(self):
+        fname = askopenfilename()
+        pth = osP.dirname(fname)
+        fn = osP.basename(fname)
+        self.gconn.add_file_to_repo(pth,self.active_project.title,fn)
+
+    def unit_wdw(self):
+        self.unit_win = Unit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project)
+
+#from tkinter import Toplevel,IntVar,Radiobutton
+#from mk_btn import Btn
+
+class Unit_Window():
+
+    def __init__(self,parent,objects,tools,proj_home,active_project):
+        self.parent = parent
+        self.objects = objects
+        self.proj_home = proj_home
+        self.kill,self.destroy_all = tools['kill'],tools['destroy']
+        self.fields,self.records = active_project.ui_outline()
+        self.unit_viewer = Toplevel(parent)
+        self.unit_viewer.title('Unit Compiler')
+        self.unit_viewer.config(bg='#292e30')
+        self.unit = 'inactive'
+        self.viewer()
+
+    def viewer(self):
+        self.objects['unit_viewer'] = {}
+        data = self.objects.get('unit_viewer')
+        self.unit_var = IntVar()
+        for idx,unit in enumerate([x[1] for x in self.records]):
+            data[f'radio_{idx}'] = Radiobutton(
+                self.unit_viewer, 
+                text=unit,bg='#1c1c1f',fg='white',selectcolor='#856c14',
+                indicatoron=0,height=1,
+                variable=self.unit_var,
+                command=lambda:print(self.unit_var.get()),
+                value=idx
+            )
+        for idx,rad in enumerate(data):
+            data[rad].place(x=0,y=26*idx)
+        ly = 30+(26*len(data))
+        data['cancel'] = Btn(self.unit_viewer,(0,ly),(50,20),'Cancel',cmd=self.unit_viewer.destroy)
+        data['confirm'] = Btn(self.unit_viewer,(50,ly),(50,20),'Confirm',cmd=self.set_unit)
+        self.unit_viewer.geometry(f'300x{ly+20}')
     
+    def set_unit(self):
+        self.unit = self.records[self.unit_var.get()][1]
+        print(self.unit)
 
 Main_Menu()

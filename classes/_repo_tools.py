@@ -1,5 +1,7 @@
 from _conf import config
 from github import Github
+from pathlib import Path
+from datetime import datetime as dt
 import os,time
 
 class git_conn():
@@ -12,7 +14,7 @@ class git_conn():
     def env(self):
         '''Initialize the evironment variables and create attributes'''
         
-        conf = config()
+        conf = config();self.conf=conf
         self.tkn = conf.get_git_token()
         self.git = Github(self.tkn)
         self.user = self.git.get_user()
@@ -81,13 +83,48 @@ class git_conn():
             
         chpath = f'cd {path}'
         commands = [
-            f'git add {path/fname}',f'git commit -a -m "{project}"',
+            f'git add {Path(path)/Path(fname)}',f'git commit -a -m "{project}"',
             'git push -u origin master'
             ]
         for cmd in commands:
             print(f'sending {cmd} to terminal at {chpath}')
             os.system('cmd /c "%s & %s"' % (chpath, cmd))
     
+    def update_repo(self,project):
+        path = self.conf.env_path
+        if not os.path.exists(f'{path}/{project}'):
+            self.clone_repo(project)
+        chpath = f'cd {path}/{project}'
+        commands = [
+            f'git commit -a -m "updates: {dt.now()}"',
+            'git push -u origin master'
+            ]
+        for cmd in commands:
+            print(f'sending {cmd} to terminal at {chpath}')
+            os.system('cmd /c "%s & %s"' % (chpath, cmd))
+
+    def pull_repo(self,project):
+        path = self.conf.env_path
+        if not os.path.exists(f'{path}/{project}'):
+            self.clone_repo(project)
+        chpath = f'cd {path}/{project}'
+        commands = [
+            f'git pull origin master'
+            ]
+        for cmd in commands:
+            print(f'sending {cmd} to terminal at {chpath}')
+            os.system('cmd /c "%s & %s"' % (chpath, cmd))
+
+    def clone_repo(self,project):
+        path = self.conf.env_path
+        chpath = f'cd {path}'
+        commands = [
+            f'git clone https://github.com/Dentsu-Aegis-Reporting-and-Automation/{project}'
+            ]
+        for cmd in commands:
+            print(f'sending {cmd} to terminal at {chpath}')
+            os.system('cmd /c "%s & %s"' % (chpath, cmd))
+
     def get_repo_stats(self,proj):
         '''Get the repository additions, deletions, and the total changes for the repository.
         input:

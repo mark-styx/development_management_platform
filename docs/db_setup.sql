@@ -93,6 +93,13 @@ create table dmp.bug_reports (
 )
 ;
 
+create table dmp.project_request_queue (
+    rkey int identity,
+    title nvarchar(255),
+    doc_link nvarchar(500)
+)
+;
+
 create table dmp.table_references (
     rkey int identity,
     project nvarchar(255),
