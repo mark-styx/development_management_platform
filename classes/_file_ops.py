@@ -16,6 +16,9 @@ class file_ops():
         self.project_level = Path(dirname(self.current_dir))
         self.projects_home = Path(dirname(self.project_level))
 
+    def rename_folder(self,project,new_name):
+        os.rename(self.projects_home/project,self.projects_home/new_name)
+
     def create_dir(self,dir_path,folder_name):
         '''Creates a directory, returns error if exists.
         input:

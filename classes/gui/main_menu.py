@@ -15,7 +15,7 @@ class Main_Menu(Root):
         self.menu = Canvas(self.root)
         self.menu.config(bg=self.app_color)
         self.menu.pack(expand=True,fill='both')
-        self.menu.create_image(300,168.5,image=self.app_objects['images']['bkgd2'])
+        self.bknd = self.menu.create_image(300,168.5,image=self.app_objects['images']['bkgd2'])
         st_x,st_y = (5,10)
         self.app_objects['main_menu']['project_home'] = Btn(
             self.menu,(st_x,st_y),txt='Project Home',toggle=True,cmd=self.toggle_project_home,deact_cmd=lambda:self.toggle_project_home('destroy')
@@ -295,11 +295,13 @@ class Live_Menu():
         )
         data['proj_head'] = Lbl(self.parent,'Project',(st_x+150,st_y+85),size=(50,20))
         data['edit_meta'] = Btn(self.parent,(st_x+125,st_y+105),txt='Edit Meta',alt_clr=True,cmd=lambda:[
-            self.csa(data,'edit_meta')
+            self.csa(data,'edit_meta'),
+            self.edit_meta_wdw()
             ]
         )
         data['update_outline'] = Btn(self.parent,(st_x+125,st_y+125),txt='Update Outline',alt_clr=True,cmd=lambda:[
-            self.csa(data,'update_outline')
+            self.csa(data,'update_outline'),
+            self.update_outline_wdw()
             ]
         )
         data['update_status'] = Btn(self.parent,(st_x+125,st_y+145),txt='Update Status',alt_clr=True,cmd=lambda:[
@@ -319,11 +321,11 @@ class Live_Menu():
             self.csa(data,'reclaim_units')
             ]
         )
-        data['compile_units'] = Btn(self.parent,(st_x+125,st_y+60),txt='Compile Units',alt_clr=True,cmd=lambda:[
-            self.csa(data,'compile_units'),
-            self.unit_wdw()
-            ],
-            deact_cmd=lambda:self.unit_win.unit_viewer.destroy(),toggle=True
+        data['compile_units'] = Btn(self.parent,(st_x+125,st_y+60),txt='Compile Units',
+            alt_clr=True,cmd=lambda:[
+                self.csa(data,'compile_units'),
+                self.unit_wdw()
+            ]
         )
 
     def csa(self,scope,tg_btn):
@@ -362,17 +364,26 @@ class Live_Menu():
     def unit_wdw(self):
         self.unit_win = Unit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project)
 
+    def edit_meta_wdw(self):
+        self.edit_meta = Edit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project,'meta')
+
+    def update_outline_wdw(self):
+        self.outline_upd = Edit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project,'outline')
+
+
 #from tkinter import Toplevel,IntVar,Radiobutton
+#from mk_cbx import Cbx,Ent,Txt
 #from mk_btn import Btn
+#from mk_lbl import Lbl
 
 class Unit_Window():
 
     def __init__(self,parent,objects,tools,proj_home,active_project):
         self.parent = parent
         self.objects = objects
-        self.proj_home = proj_home
-        self.kill,self.destroy_all = tools['kill'],tools['destroy']
+        self.project = active_project
         self.fields,self.records = active_project.ui_outline()
+        self.proj_home = proj_home
         self.unit_viewer = Toplevel(parent)
         self.unit_viewer.title('Unit Compiler')
         self.unit_viewer.config(bg='#292e30')
@@ -402,5 +413,174 @@ class Unit_Window():
     def set_unit(self):
         self.unit = self.records[self.unit_var.get()][1]
         print(self.unit)
+
+
+class Edit_Window():
+    def __init__(self,parent,objects,tools,proj_home,active_project,window):
+        self.kill,self.destroy_all = tools['kill'],tools['destroy']
+        self.parent = parent
+        self.objects = objects
+        self.project = active_project
+        self.proj_home = proj_home
+        self.edit_wdw = Toplevel(parent)
+        self.edit = Canvas(self.edit_wdw)
+        self.edit.pack(expand=True,fill='both')
+        self.edit.config(bg='#292e30')
+        opts = {
+            'meta':self.meta_editor,
+            'outline':self.outline_menu
+            }
+        opts[window]()
+    
+    def meta_editor(self):
+        st_x,st_y = (30,15)
+        self.edit_wdw.geometry('375x250')
+        self.edit_wdw.title('Edit Meta')
+        self.objects['edit_meta'] = {}
+        data = self.objects.get('edit_meta')
+        data['canvas'] = self.edit.create_rectangle(25,10,350,245,fill='#1c1c1f')
+        data['header'] = Lbl(self.edit,'Edit Meta',(175,st_y+5))
+        data['title'] = Ent(self.edit,(st_x+150,st_y+35),(150,20),label=True,txt='Title')
+        data['desc'] = Txt(self.edit,(st_x+150,st_y+55),(150,100),label=True,txt='Description')
+        data['lead'] = Cbx(
+            self.edit,(st_x+150,st_y+175),(150,20),label=True,txt='Lead',
+            values=['Mathew Augusthy','Jeff Brown','Mark Styx']
+        )
+        data['title'].insert(str(self.project.title))
+        data['desc'].insert(str(self.project.desc))
+        data['lead'].insert(str(self.project.lead))
+        data['confirm'] = Btn(
+            self.edit,(st_x+125,st_y+200),(50,20),txt='Accept',alt_clr=True,
+            cmd=lambda:[
+                self.project.change_title(data['title'].get().strip()),
+                self.project.change_desc(data['desc'].get().strip()),
+                self.project.change_lead(data['lead'].get().strip()),
+                self.edit_wdw.destroy()
+            ]
+        )
+        data['cancel'] = Btn(
+            self.edit,(st_x+75,st_y+200),(50,20),'Cancel',
+            cmd=self.edit_wdw.destroy,alt_clr=True
+        )
+
+    def outline_menu(self):
+        st_x,st_y = (5,5)
+        self.edit_wdw.geometry('400x250')
+        self.edit_wdw.title('Update Outline')
+        self.objects['update_outline'] = {}
+        data = self.objects.get('update_outline')
+        data['canvas0'] = self.edit.create_rectangle(0,0,80,70,fill='#1c1c1f')
+        data['canvas1'] = self.edit.create_rectangle(0,340,80,400,fill='#1c1c1f')
+        data['canvas2'] = self.edit.create_rectangle(90,5,375,245,fill='#1c1c1f')
+        data['add_entry'] = Btn(
+            self.edit,(st_x,st_y),(70,20),txt='Add Entry',alt_clr=False,
+            cmd=lambda:[
+                self.csa(data,'add_entry'),
+                self.add_entry_menu()
+                ],
+            toggle=True,deact_cmd=lambda:[self.kill(data['add_form'])]
+        )
+        data['rem_entry'] = Btn(
+            self.edit,(st_x,st_y+20),(70,20),txt='Rem Entry',alt_clr=False,
+            cmd=lambda:[
+                self.csa(data,'rem_entry'),
+                self.rem_entry_menu()
+            ],
+            toggle=True,deact_cmd=lambda:[self.kill(data['rem_form'])]
+        )
+        data['edit_outline'] = Btn(
+            self.edit,(st_x,st_y+40),(70,20),txt='Edit Outline',alt_clr=False,
+            cmd=lambda:[
+                self.csa(data,'edit_outline')
+            ],
+            toggle=True,deact_cmd=lambda:[]
+        )
+        data['cancel'] = Btn(
+            self.edit,(st_x,st_y+195),(70,20),txt='Cancel',alt_clr=False,
+            cmd=lambda:[self.edit_wdw.destroy()]
+        )
+
+    def csa(self,scope,tg_btn):
+        btns = []
+        for obj in scope:
+            if type(scope[obj]) is Btn:
+                btns.append(obj)
+        for btn in btns:
+            if tg_btn not in btn:
+                try:
+                    if scope[btn].active:
+                        print(scope[btn],btn)
+                        scope[btn].toggle()
+                except Exception: continue
+
+    def add_entry_menu(self):
+        st_x,st_y = 210,10
+        self.objects['update_outline']['add_form'] = {}
+        data = self.objects['update_outline'].get('add_form')
+        data['header'] = Lbl(self.edit,'Add Entry',(142.5,st_y+5))
+        data['task_name'] = Ent(self.edit,(st_x+5,st_y+25),(125,20),label=True,txt='Title')
+        data['desc'] = Txt(self.edit,(st_x+5,st_y+45),(125,100),label=True,txt='Description')
+        data['lead'] = Cbx(
+            self.edit,(st_x+5,st_y+145),(125,20),label=True,txt='Lead',
+            values=['Mathew Augusthy','Jeff Brown','Mark Styx']
+        )
+        data['lead'].insert(str(self.project.lead))
+        data['confirm'] = Btn(
+            self.edit,(5,220),(70,20),txt='Confirm',alt_clr=False,
+            cmd=lambda:[
+                self.project.add_to_outline(
+                    data['task_name'].get().strip(),
+                    data['desc'].get().strip(),
+                    data['lead'].get().strip()
+                    ),
+                self.objects['update_outline']['add_entry'].toggle()
+                ]
+        )
+
+    def rem_entry_menu(self):
+        fld,res = self.project.ui_outline()
+        st_x,st_y = 210,10
+        self.objects['update_outline']['rem_form'] = {}
+        data = self.objects['update_outline'].get('rem_form')
+        data['header'] = Lbl(self.edit,'Remove Entry',(142.5,st_y+5))
+        data['task'] = Cbx(
+            self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(20,40),
+            values=[f'{x[0]} | {x[1]}' for x in res]
+        )
+        data['confirm'] = Btn(
+            self.edit,(5,220),(70,20),txt='Confirm',alt_clr=False,
+            cmd=lambda:[
+                print( data['task'].get().split('|')[0].strip() ),
+                self.project.rem_outline( data['task'].get().split('|')[0].strip() ),
+                self.objects['update_outline']['rem_entry'].toggle()
+                ]
+        )
+
+    def outline_editor(self):
+        st_x,st_y = (300,10)
+        self.edit.title('Edit Outline')
+        self.objects['update_outline'] = {}
+        data = self.objects.get('update_outline')
+        data['canvas'] = self.edit.create_rectangle(25,10,275,150,fill='#1c1c1f')
+        data['header'] = Lbl(self.edit,'Edit Meta',(125,st_y+5))
+        data['title'] = Ent(self.edit,(st_x,st_y+35),(150,20),label=True,txt='Title')
+        data['desc'] = Txt(self.edit,(st_x,st_y+45),(150,100),label=True,txt='Description')
+        data['lead'] = Cbx(self.edit,(st_x,st_y+65),(150,20),label=True,txt='Lead',values=['Mathew Augusthy','Jeff Brown','Mark Styx'])
+        data['title'].insert(self.project.title)
+        data['desc'].insert(self.project.desc)
+        data['lead'].insert(self.project.lead)
+        
+        data['confirm'] = Btn(
+            self.edit,(st_x+50,st_y+90),(50,20),txt='Accept',alt_clr=True,
+            cmd=lambda:[
+                self.project.change_title(data['title'].get()),
+                self.project.change_desc(data['desc'].get()),
+                self.project.change_lead(data['lead'].get())
+            ]
+        )
+        data['cancel'] = Btn(
+            self.edit,(st_x+50,st_y+90),(50,20),'Cancel',
+            cmd=self.edit.destroy,alt_clr=True
+        )
 
 Main_Menu()

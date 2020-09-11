@@ -15,17 +15,25 @@ class Outline(Project):
             )
         return outline,fields
 
-    def add_to_outline(self,task_name,desc,status='new',owner=None):
+    def add_to_outline(self,task_name,desc,owner=None):
         if not owner: owner = self.lead
+        status = self.status
         q = f"""insert into dmp.project_outlines (
             project,task_name,task_desc,task_status,owner
             )
             values ('{self.title}','{task_name}','{desc}','{status}','{owner}')"""
         self.dbcon.xquery(q)
+        self.refresh()
+
+    def rem_outline(self,tid):
+        q = f"delete dmp.project_outlines where task_id = {tid} and project = '{self.title}'"
+        self.dbcon.xquery(q)
+        self.refresh()
 
     def update_outline(self,field,task,value):
         q = f"update dmp.project_outlines set {field} = '{value}' where project = '{self.title}' and task_name = '{task}'"
         self.dbcon.xquery(q)
+        self.refresh()
 
     def ui_outline(self):
         fields = ['task_id','task_name','task_status','owner']

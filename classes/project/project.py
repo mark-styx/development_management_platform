@@ -1,4 +1,4 @@
-import sys
+import sys,os
 sys.path.append(r'C:\Users\mstyx\Anchor\development_management_platform\classes')
 
 # development mode status
@@ -27,6 +27,9 @@ class Project():
             else:
                 self.get_rkey()
 
+    def refresh(self):
+        self.get_attrs(self.rkey)
+
     def get_attrs(self,rkey):
         meta = self.dbcon.xquery(
             f'''
@@ -51,17 +54,22 @@ class Project():
         return results,fields
 
     def change_title(self,new_name):
-        repo = self.gconn.org.get_repo(self.title)
-        repo.edit(name=new_name)
-        self.dbcon.xquery(f"update dmp.project_list set project = '{new_name}' where project = '{self.title}'")
-        self.dbcon.xquery(f"update dmp.project_outlines set project = '{new_name}' where project = '{self.title}'")
+        if self.title != new_name:
+            repo = self.gconn.org.get_repo(self.title)
+            repo.edit(name=new_name)
+            self.fops.rename_folder(self.title,new_name)
+            self.dbcon.xquery(f"update dmp.project_list set project = '{new_name}' where project = '{self.title}'")
+            self.dbcon.xquery(f"update dmp.project_outlines set project = '{new_name}' where project = '{self.title}'")
+            self.title = new_name
 
     def change_desc(self,new_desc):
-        repo = self.gconn.org.get_repo(self.title)
-        repo.edit(description=new_desc)
-        self.dbcon.xquery(f"update dmp.project_list set project_desc = '{new_desc}' where project = '{self.title}'")
-        self.dbcon.xquery(f"update dmp.project_outlines set project_desc = '{new_desc}' where project = '{self.title}'")
+        if self.desc != new_desc:
+            repo = self.gconn.org.get_repo(self.title)
+            repo.edit(description=new_desc)
+            self.dbcon.xquery(f"update dmp.project_list set project_desc = '{new_desc}' where project = '{self.title}'")
+            self.desc = new_desc
 
     def change_lead(self,new_lead):
-        self.dbcon.xquery(f"update dmp.project_list set project_lead = '{new_lead}' where project = '{self.title}'")
-        self.dbcon.xquery(f"update dmp.project_outlines set project_lead = '{new_lead}' where project = '{self.title}'")
+        if self.lead != new_lead:
+            self.dbcon.xquery(f"update dmp.project_list set project_lead = '{new_lead}' where project = '{self.title}'")
+            self.lead = new_lead

@@ -3,13 +3,17 @@ from tkinter.ttk import Combobox,Style
 
 class Cbx():
 
-    def __init__(self,parent,loc,size=(100,20),label=False,txt=None,label_loc='left',values=None):
+    def __init__(self,parent,loc,size=(100,20),label=False,txt=None,label_loc='left',values=None,lbl_size=None):
         self.combo = Combobox(parent)
         x,y = loc; w,h = size
         self.combo.place(x=x,y=y,height=h,width=w)
         self.combo['values'] = values
         if label:
-            self.add_label(parent,txt,label_loc,(x,y),h,w)
+            if not lbl_size:
+                lh,lw = h,w
+            else:
+                lh,lw = lbl_size
+            self.add_label(parent,txt,label_loc,(x,y),lh,lw)
 
     def add_label(self,parent,label_txt,label_loc,loc,h,w):
         self.label = Label(parent,bg='#1c1c1f',fg='white',text=label_txt)
@@ -30,6 +34,8 @@ class Cbx():
             self.combo.destroy()
     
     def get(self): return self.combo.get()
+    def insert(self,choice):
+        self.combo.current(self.combo['values'].index(choice))
 
 
 class Ent():
@@ -62,6 +68,7 @@ class Ent():
             self.entry.destroy()
 
     def get(self): return self.entry.get()
+    def insert(self,txt): self.entry.insert(END,txt)
 
 class Txt():
     def __init__(
@@ -96,3 +103,4 @@ class Txt():
             self.text.destroy()
 
     def get(self): return self.text.get('1.0',END)
+    def insert(self,txt): self.text.insert(END,txt)
