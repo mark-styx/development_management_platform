@@ -35,7 +35,10 @@ class Cbx():
     
     def get(self): return self.combo.get()
     def insert(self,choice):
-        self.combo.current(self.combo['values'].index(choice))
+        print(choice)
+        if type(choice) is int:
+            self.combo.current(self.combo['values'][choice])
+        else: self.combo.current(self.combo['values'].index(choice))
 
 
 class Ent():
@@ -68,7 +71,12 @@ class Ent():
             self.entry.destroy()
 
     def get(self): return self.entry.get()
-    def insert(self,txt): self.entry.insert(END,txt)
+    def insert(self,txt):
+        try:
+            self.entry.delete(0, END)
+        except Exception:
+            ''
+        self.entry.insert(END,txt)
 
 class Txt():
     def __init__(
@@ -103,4 +111,9 @@ class Txt():
             self.text.destroy()
 
     def get(self): return self.text.get('1.0',END)
-    def insert(self,txt): self.text.insert(END,txt)
+    def insert(self,txt):
+        try:
+            self.text.delete('1.0', END)
+        except Exception:
+            ''
+        self.text.insert(END,txt)

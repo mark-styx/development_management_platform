@@ -21,6 +21,7 @@ class Main_Menu(Root):
             self.menu,(st_x,st_y),txt='Project Home',toggle=True,cmd=self.toggle_project_home,deact_cmd=lambda:self.toggle_project_home('destroy')
             )
         self.app_objects['main_menu']['settings'] = Btn(self.menu,(st_x,st_y + 20),txt='Settings',toggle=True)
+        self.app_objects['main_menu']['settings'].button['state'] = 'disabled'
         self.app_objects['main_menu']['quit'] = Btn(self.menu,(st_x,st_y + 40),txt='Quit',cmd=quit)
         self.menu.create_rectangle(0,0,110,80,fill='#1c1c1f')
 
@@ -59,6 +60,7 @@ class Main_Menu(Root):
 
 
 from create_menu import Create_Menu
+from editor_view import Edit_Window,Project_Status
 from mk_cbx import Cbx,Ent,Txt
 #from mk_btn import Btn
 from mk_lbl import Lbl
@@ -79,7 +81,9 @@ class Project_Home(Frame):
         self.objects['live_projects'] = Btn(self.parent,(st_x,st_y + 20),txt='Live Projects',
         cmd=self.live_proj_menu,deact_cmd=lambda:self.destroy_all(self.live_menu.objects['live_menu']),toggle=True)
         self.objects['bug_reporting'] = Btn(self.parent,(st_x,st_y + 40),txt='Bug Reporting')
+        self.objects['bug_reporting'].button['state'] = 'disabled'
         self.objects['view_archived'] = Btn(self.parent,(st_x,st_y + 60),txt='View Archived')
+        self.objects['view_archived'].button['state'] = 'disabled'
         self.objects['canvas'] = self.parent.create_rectangle(0,100,110,190,fill='#1c1c1f')
 
     def clear_switches(self,tg_btn):
@@ -198,6 +202,7 @@ class Live_Menu():
             cmd=lambda:[
                 ]
             )
+        data['queue'].button['state'] = 'disabled'
         data['canvas'] = self.parent.create_rectangle(0,210,110,280,fill='#1c1c1f')
         for obj in data.values():
             if type(obj) is Btn:
@@ -267,14 +272,14 @@ class Live_Menu():
         data['repo_head'] = Lbl(self.parent,'Repo',(st_x+25,st_y),size=(50,20))
         data['pull_repo'] = Btn(
             self.parent,(st_x,st_y+20),txt='Pull Repo',alt_clr=True,cmd=lambda:[
-                self.csa(data,'pull_repo'),
-                self.gconn.pull_repo(self.active_project.title)
+                    self.csa(data,'pull_repo'),
+                    self.gconn.pull_repo(self.active_project.title)
                 ]
             )
         data['clone_repo'] = Btn(
             self.parent,(st_x,st_y+40),txt='Clone Repo',alt_clr=True,cmd=lambda:[
-                self.csa(data,'clone_repo'),
-                self.gconn.clone_repo(self.active_project.title)
+                    self.csa(data,'clone_repo'),
+                    self.gconn.clone_repo(self.active_project.title)
                 ]
             )
         data['add_files'] = Btn(
@@ -283,44 +288,48 @@ class Live_Menu():
             deact_cmd=lambda:self.kill(data['add_files_sub']),toggle=True
             )
         data['update_repo'] = Btn(self.parent,(st_x,st_y+80),txt='Update Repo',alt_clr=True,cmd=lambda:[
-            self.csa(data,'update_repo'),
-            self.gconn.update_repo(self.active_project.title)
+                self.csa(data,'update_repo'),
+                self.gconn.update_repo(self.active_project.title)
             ]
         )
         data['update_docs'] = Btn(self.parent,(st_x,st_y+100),txt='Update Docs',alt_clr=True,cmd=lambda:[
-            self.csa(data,'update_docs'),
-            self.doc_mgr.update_doc_package(),
-            self.gconn.update_repo(self.active_project.title)
+                self.csa(data,'update_docs'),
+                self.doc_mgr.update_doc_package(),
+                self.gconn.update_repo(self.active_project.title)
             ]
         )
         data['proj_head'] = Lbl(self.parent,'Project',(st_x+150,st_y+85),size=(50,20))
         data['edit_meta'] = Btn(self.parent,(st_x+125,st_y+105),txt='Edit Meta',alt_clr=True,cmd=lambda:[
-            self.csa(data,'edit_meta'),
-            self.edit_meta_wdw()
+                self.csa(data,'edit_meta'),
+                self.edit_meta_wdw()
             ]
         )
         data['update_outline'] = Btn(self.parent,(st_x+125,st_y+125),txt='Update Outline',alt_clr=True,cmd=lambda:[
-            self.csa(data,'update_outline'),
-            self.update_outline_wdw()
+                self.csa(data,'update_outline'),
+                self.update_outline_wdw()
             ]
         )
         data['update_status'] = Btn(self.parent,(st_x+125,st_y+145),txt='Update Status',alt_clr=True,cmd=lambda:[
-            self.csa(data,'update_status')
+                self.csa(data,'update_status'),
+                self.proj_stat_wdw()
             ]
         )
         data['submit_to_testing'] = Btn(self.parent,(st_x+125,st_y+165),txt='Submit to Testing',alt_clr=True,cmd=lambda:[
-            self.csa(data,'submit_to_testing')
+                self.csa(data,'submit_to_testing')
             ]
         )
+        data['submit_to_testing'].button['state'] = 'disabled'
         data['dvlp_head'] = Lbl(self.parent,'Develop',(st_x+150,st_y),size=(50,20))
         data['create_units'] = Btn(self.parent,(st_x+125,st_y+20),txt='Create Units',alt_clr=True,cmd=lambda:[
-            self.csa(data,'create_units')
+                self.csa(data,'create_units')
             ]
         )
+        data['create_units'].button['state'] = 'disabled'
         data['reclaim_units'] = Btn(self.parent,(st_x+125,st_y+40),txt='Reclaim Units',alt_clr=True,cmd=lambda:[
-            self.csa(data,'reclaim_units')
+                self.csa(data,'reclaim_units')
             ]
         )
+        data['reclaim_units'].button['state'] = 'disabled'
         data['compile_units'] = Btn(self.parent,(st_x+125,st_y+60),txt='Compile Units',
             alt_clr=True,cmd=lambda:[
                 self.csa(data,'compile_units'),
@@ -357,9 +366,10 @@ class Live_Menu():
 
     def add_single(self):
         fname = askopenfilename()
-        pth = osP.dirname(fname)
-        fn = osP.basename(fname)
-        self.gconn.add_file_to_repo(pth,self.active_project.title,fn)
+        if fname:
+            pth = osP.dirname(fname)
+            fn = osP.basename(fname)
+            self.gconn.add_file_to_repo(pth,self.active_project.title,fn)
 
     def unit_wdw(self):
         self.unit_win = Unit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project)
@@ -369,12 +379,18 @@ class Live_Menu():
 
     def update_outline_wdw(self):
         self.outline_upd = Edit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project,'outline')
+    
+    def proj_stat_wdw(self):
+        self.proj_stat_upd = Project_Status(self.parent,self.objects,self.active_project)
 
 
 #from tkinter import Toplevel,IntVar,Radiobutton
 #from mk_cbx import Cbx,Ent,Txt
 #from mk_btn import Btn
 #from mk_lbl import Lbl
+
+
+
 
 class Unit_Window():
 
@@ -415,172 +431,6 @@ class Unit_Window():
         print(self.unit)
 
 
-class Edit_Window():
-    def __init__(self,parent,objects,tools,proj_home,active_project,window):
-        self.kill,self.destroy_all = tools['kill'],tools['destroy']
-        self.parent = parent
-        self.objects = objects
-        self.project = active_project
-        self.proj_home = proj_home
-        self.edit_wdw = Toplevel(parent)
-        self.edit = Canvas(self.edit_wdw)
-        self.edit.pack(expand=True,fill='both')
-        self.edit.config(bg='#292e30')
-        opts = {
-            'meta':self.meta_editor,
-            'outline':self.outline_menu
-            }
-        opts[window]()
-    
-    def meta_editor(self):
-        st_x,st_y = (30,15)
-        self.edit_wdw.geometry('375x250')
-        self.edit_wdw.title('Edit Meta')
-        self.objects['edit_meta'] = {}
-        data = self.objects.get('edit_meta')
-        data['canvas'] = self.edit.create_rectangle(25,10,350,245,fill='#1c1c1f')
-        data['header'] = Lbl(self.edit,'Edit Meta',(175,st_y+5))
-        data['title'] = Ent(self.edit,(st_x+150,st_y+35),(150,20),label=True,txt='Title')
-        data['desc'] = Txt(self.edit,(st_x+150,st_y+55),(150,100),label=True,txt='Description')
-        data['lead'] = Cbx(
-            self.edit,(st_x+150,st_y+175),(150,20),label=True,txt='Lead',
-            values=['Mathew Augusthy','Jeff Brown','Mark Styx']
-        )
-        data['title'].insert(str(self.project.title))
-        data['desc'].insert(str(self.project.desc))
-        data['lead'].insert(str(self.project.lead))
-        data['confirm'] = Btn(
-            self.edit,(st_x+125,st_y+200),(50,20),txt='Accept',alt_clr=True,
-            cmd=lambda:[
-                self.project.change_title(data['title'].get().strip()),
-                self.project.change_desc(data['desc'].get().strip()),
-                self.project.change_lead(data['lead'].get().strip()),
-                self.edit_wdw.destroy()
-            ]
-        )
-        data['cancel'] = Btn(
-            self.edit,(st_x+75,st_y+200),(50,20),'Cancel',
-            cmd=self.edit_wdw.destroy,alt_clr=True
-        )
 
-    def outline_menu(self):
-        st_x,st_y = (5,5)
-        self.edit_wdw.geometry('400x250')
-        self.edit_wdw.title('Update Outline')
-        self.objects['update_outline'] = {}
-        data = self.objects.get('update_outline')
-        data['canvas0'] = self.edit.create_rectangle(0,0,80,70,fill='#1c1c1f')
-        data['canvas1'] = self.edit.create_rectangle(0,340,80,400,fill='#1c1c1f')
-        data['canvas2'] = self.edit.create_rectangle(90,5,375,245,fill='#1c1c1f')
-        data['add_entry'] = Btn(
-            self.edit,(st_x,st_y),(70,20),txt='Add Entry',alt_clr=False,
-            cmd=lambda:[
-                self.csa(data,'add_entry'),
-                self.add_entry_menu()
-                ],
-            toggle=True,deact_cmd=lambda:[self.kill(data['add_form'])]
-        )
-        data['rem_entry'] = Btn(
-            self.edit,(st_x,st_y+20),(70,20),txt='Rem Entry',alt_clr=False,
-            cmd=lambda:[
-                self.csa(data,'rem_entry'),
-                self.rem_entry_menu()
-            ],
-            toggle=True,deact_cmd=lambda:[self.kill(data['rem_form'])]
-        )
-        data['edit_outline'] = Btn(
-            self.edit,(st_x,st_y+40),(70,20),txt='Edit Outline',alt_clr=False,
-            cmd=lambda:[
-                self.csa(data,'edit_outline')
-            ],
-            toggle=True,deact_cmd=lambda:[]
-        )
-        data['cancel'] = Btn(
-            self.edit,(st_x,st_y+195),(70,20),txt='Cancel',alt_clr=False,
-            cmd=lambda:[self.edit_wdw.destroy()]
-        )
-
-    def csa(self,scope,tg_btn):
-        btns = []
-        for obj in scope:
-            if type(scope[obj]) is Btn:
-                btns.append(obj)
-        for btn in btns:
-            if tg_btn not in btn:
-                try:
-                    if scope[btn].active:
-                        print(scope[btn],btn)
-                        scope[btn].toggle()
-                except Exception: continue
-
-    def add_entry_menu(self):
-        st_x,st_y = 210,10
-        self.objects['update_outline']['add_form'] = {}
-        data = self.objects['update_outline'].get('add_form')
-        data['header'] = Lbl(self.edit,'Add Entry',(142.5,st_y+5))
-        data['task_name'] = Ent(self.edit,(st_x+5,st_y+25),(125,20),label=True,txt='Title')
-        data['desc'] = Txt(self.edit,(st_x+5,st_y+45),(125,100),label=True,txt='Description')
-        data['lead'] = Cbx(
-            self.edit,(st_x+5,st_y+145),(125,20),label=True,txt='Lead',
-            values=['Mathew Augusthy','Jeff Brown','Mark Styx']
-        )
-        data['lead'].insert(str(self.project.lead))
-        data['confirm'] = Btn(
-            self.edit,(5,220),(70,20),txt='Confirm',alt_clr=False,
-            cmd=lambda:[
-                self.project.add_to_outline(
-                    data['task_name'].get().strip(),
-                    data['desc'].get().strip(),
-                    data['lead'].get().strip()
-                    ),
-                self.objects['update_outline']['add_entry'].toggle()
-                ]
-        )
-
-    def rem_entry_menu(self):
-        fld,res = self.project.ui_outline()
-        st_x,st_y = 210,10
-        self.objects['update_outline']['rem_form'] = {}
-        data = self.objects['update_outline'].get('rem_form')
-        data['header'] = Lbl(self.edit,'Remove Entry',(142.5,st_y+5))
-        data['task'] = Cbx(
-            self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(20,40),
-            values=[f'{x[0]} | {x[1]}' for x in res]
-        )
-        data['confirm'] = Btn(
-            self.edit,(5,220),(70,20),txt='Confirm',alt_clr=False,
-            cmd=lambda:[
-                print( data['task'].get().split('|')[0].strip() ),
-                self.project.rem_outline( data['task'].get().split('|')[0].strip() ),
-                self.objects['update_outline']['rem_entry'].toggle()
-                ]
-        )
-
-    def outline_editor(self):
-        st_x,st_y = (300,10)
-        self.edit.title('Edit Outline')
-        self.objects['update_outline'] = {}
-        data = self.objects.get('update_outline')
-        data['canvas'] = self.edit.create_rectangle(25,10,275,150,fill='#1c1c1f')
-        data['header'] = Lbl(self.edit,'Edit Meta',(125,st_y+5))
-        data['title'] = Ent(self.edit,(st_x,st_y+35),(150,20),label=True,txt='Title')
-        data['desc'] = Txt(self.edit,(st_x,st_y+45),(150,100),label=True,txt='Description')
-        data['lead'] = Cbx(self.edit,(st_x,st_y+65),(150,20),label=True,txt='Lead',values=['Mathew Augusthy','Jeff Brown','Mark Styx'])
-        data['title'].insert(self.project.title)
-        data['desc'].insert(self.project.desc)
-        data['lead'].insert(self.project.lead)
-        
-        data['confirm'] = Btn(
-            self.edit,(st_x+50,st_y+90),(50,20),txt='Accept',alt_clr=True,
-            cmd=lambda:[
-                self.project.change_title(data['title'].get()),
-                self.project.change_desc(data['desc'].get()),
-                self.project.change_lead(data['lead'].get())
-            ]
-        )
-        data['cancel'] = Btn(
-            self.edit,(st_x+50,st_y+90),(50,20),'Cancel',
-            cmd=self.edit.destroy,alt_clr=True
-        )
 
 Main_Menu()

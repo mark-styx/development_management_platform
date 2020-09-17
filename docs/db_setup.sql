@@ -1,4 +1,4 @@
-/* project environment variables, project listing, outline, test logs, and bug report tables
+-- project environment variables, project listing, outline, test logs, and bug report tables
 
 create schema dmp
 ;
@@ -108,7 +108,7 @@ create table dmp.table_references (
 
 */
 
-/* create trigger to auto-populate the task_id and create_date
+-- create trigger to auto-populate the task_id and create_date
 
 create trigger dmp.outline_meta
 on dmp.project_outlines after insert
@@ -140,9 +140,9 @@ begin
 end
 ;
 
-*/
 
-/* create trigger to auto-populate the total_tasks,completed_tasks and est_completion
+
+-- create trigger to auto-populate the total_tasks,completed_tasks and est_completion
 
 create trigger dmp.proj_updates
 on dmp.project_outlines after insert,delete,update
@@ -168,7 +168,7 @@ begin
 end
 ;
 
-/* create trigger to auto-populate dev_status
+-- create trigger to auto-populate dev_status
 
 create trigger dmp.dev_stat_updates
 on dmp.project_list after insert,delete,update
@@ -188,7 +188,7 @@ end
 
 */
 
---exec sp_rename 'dmp.project_outlines.task_dependancies', 'task_dependencies', 'COLUMN';
+-- exec sp_rename 'dmp.project_outlines.task_dependancies', 'task_dependencies', 'COLUMN';
 
 use dmp_dev_env
 
@@ -238,6 +238,7 @@ where k = task_id
     and project = 'testing001'
 ;
 
-select * from dmp.project_outlines where project = 'testing001'
+select * from dmp.project_outlines where project = 'testing004'
+select * from dmp.project_list where project = 'testing004'
 
-
+select * from dmp.project_status_list

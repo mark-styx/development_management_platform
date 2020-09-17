@@ -73,3 +73,9 @@ class Project():
         if self.lead != new_lead:
             self.dbcon.xquery(f"update dmp.project_list set project_lead = '{new_lead}' where project = '{self.title}'")
             self.lead = new_lead
+
+    def change_status(self,new_stat):
+        if self.status != new_stat:
+            self.dbcon.xquery(f"update dmp.project_list set project_status = '{new_stat}' where project = '{self.title}'")
+            self.dbcon.xquery(f"update dmp.project_outlines set task_status = '{new_stat}' where project = '{self.title}'")
+            self.stat = new_stat

@@ -39,3 +39,17 @@ class Outline(Project):
         fields = ['task_id','task_name','task_status','owner']
         reslts = self.dbcon.xquery(f"select {','.join(fields)} from dmp.project_outlines  where project = '{self.title}'")
         return fields,reslts
+
+    def ui_outline_edit(self):
+        fields = ['task_id','task_name','task_desc','owner']
+        reslts = self.dbcon.xquery(f"select {','.join(fields)} from dmp.project_outlines  where project = '{self.title}'")
+        return fields,reslts
+
+
+    def est_timing(self):
+        fields = ['task_id','task_name','est_completion','est_risks','est_risk_penalty']
+        reslts = self.dbcon.xquery(f"select {','.join(fields)} from dmp.project_outlines  where project = '{self.title}'")
+        return fields,reslts
+
+    def get_status_opts(self):
+        return self.dbcon.xquery('select rkey,status from dmp.project_status_list')
