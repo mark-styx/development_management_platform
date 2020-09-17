@@ -1,4 +1,8 @@
+from datetime import datetime as dt
+from os import startfile
+
 from project.project import Project
+from sql_reclaim import Reclaim
 
 class Outline(Project):
 
@@ -53,3 +57,55 @@ class Outline(Project):
 
     def get_status_opts(self):
         return self.dbcon.xquery('select rkey,status from dmp.project_status_list')
+
+    def create_unit_files(self,dir_path):
+        try:
+            for unit in self.dbcon.xquery(f"select task_name from dmp.project_outlines where project = '{self.title}'"):
+                print(dir_path,self.title,unit)
+                self.fops.sql_unit(dir_path,self.title,unit,self.gconn.name)
+        except Exception as X:
+            print(str(X))
+
+    def get_references(self,dir_path):
+        rec = Reclaim(dir_path,self.title)
+        ref = rec.ref.copy()
+        tid = self.dbcon.xquery(
+            f"select task_name,task_id from dmp.project_outlines where project = '{self.title}'"
+            )
+        d = dict(tid)
+        for unit in ref:
+            ref[unit] = [d[x] for x in ref[unit]]
+        for unit in ref:
+            self.update_outline('task_dependencies',unit,','.join([str(x) for x in ref[unit]]))
+        return ref,rec
+
+    def compile_unit(self,dir_path,unit):
+        ref,rec = self.get_references(dir_path)
+        rnames = rec.ref[unit]
+        ridx = []
+        for name in rnames:
+            print(name)
+            ridx += ref[name]
+        print(ridx)
+        uid = self.dbcon.xquery(
+            f"select task_id from dmp.project_outlines where project = '{self.title}' and task_name = '{unit}'"
+        ).pop()
+        print(uid)
+        ridx.append(str(uid[0]))
+        ridx = [str(x) for x in ridx]
+        ridx = ','.join(list(set(sorted(ridx))))
+        q = f"""
+                select task_name from dmp.project_outlines
+                where project = '{self.title}' and task_id in ({ridx})
+                order by task_id asc
+            """
+        print(q)
+        files = self.dbcon.xquery(q)
+        output = ''
+        for f in files:
+            with open(dir_path/self.title/f'unit_files/{str(f[0])}.sql', 'r') as fn:
+                output += fn.read() + '\n\n'
+        fname = dir_path/self.title/f"working_files/{unit}_compiled_{str(dt.now().date()).replace('-','_')}.sql"
+        with open(fname,'w') as f:
+            f.write(output)
+        startfile(str(fname))

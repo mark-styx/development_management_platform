@@ -105,14 +105,15 @@ from project.outline import Outline
 from project.project import Project
 from doc_manager import doc_manager
 from _repo_tools import git_conn
+from _file_ops import file_ops
 
 #from mk_cbx import Cbx,Ent,Txt
 #from mk_btn import Btn
 #from mk_lbl import Lbl
 
 from tkinter.filedialog import askopenfilename
-import os.path as osP
 from subprocess import Popen
+import os.path as osP
 import webbrowser
 
 class Live_Menu():
@@ -321,15 +322,16 @@ class Live_Menu():
         data['submit_to_testing'].button['state'] = 'disabled'
         data['dvlp_head'] = Lbl(self.parent,'Develop',(st_x+150,st_y),size=(50,20))
         data['create_units'] = Btn(self.parent,(st_x+125,st_y+20),txt='Create Units',alt_clr=True,cmd=lambda:[
-                self.csa(data,'create_units')
+                #self.csa(data,'create_units')
+                self.active_project.create_unit_files(self.proj_home/self.active_project.title)
             ]
         )
-        data['create_units'].button['state'] = 'disabled'
         data['reclaim_units'] = Btn(self.parent,(st_x+125,st_y+40),txt='Reclaim Units',alt_clr=True,cmd=lambda:[
-                self.csa(data,'reclaim_units')
+                #self.csa(data,'reclaim_units')
+                self.active_project.get_references(self.proj_home)
             ]
         )
-        data['reclaim_units'].button['state'] = 'disabled'
+        #data['reclaim_units'].button['state'] = 'disabled'
         data['compile_units'] = Btn(self.parent,(st_x+125,st_y+60),txt='Compile Units',
             alt_clr=True,cmd=lambda:[
                 self.csa(data,'compile_units'),
@@ -389,9 +391,6 @@ class Live_Menu():
 #from mk_btn import Btn
 #from mk_lbl import Lbl
 
-
-
-
 class Unit_Window():
 
     def __init__(self,parent,objects,tools,proj_home,active_project):
@@ -429,8 +428,8 @@ class Unit_Window():
     def set_unit(self):
         self.unit = self.records[self.unit_var.get()][1]
         print(self.unit)
-
-
+        self.project.compile_unit(self.proj_home,self.unit)
+        self.unit_viewer.destroy()
 
 
 Main_Menu()

@@ -47,7 +47,7 @@ class file_ops():
         }
         task_types[ftype](dir_path,project_title,unit,create_date,author)
 
-    def sql_unit(self,dir_path,project_title,unit,create_date,author=None):
+    def sql_unit(self,dir_path,project_title,unit,author=None):
         '''Creates a sql unit file.
         input:
             dir_path (str, path of the target directory)
@@ -57,13 +57,13 @@ class file_ops():
             author (str, creator of the unit)
             ftype (str, the file extension name )'''
 
-        head = f'-- 0101010\n\n-- {project_title}\n\n'
+        head = f'-- {project_title} --\n\n'
         head += '-'*80;head += '\n'
-        head += f'-- unit: {unit} | author: {author} | created: {create_date}\n'
+        head += f'-- unit: {unit} | author: {author} | created: {str(dt.now().date())}\n'
         head += (('-'*80)+'\n')*2
-        if Path.exists((dir_path) / f'{unit}.sql'): raise
+        if Path.exists((dir_path) / f'unit_files/{unit}.sql'): return
         else:
-            with open(dir_path/f'{unit}.sql','w') as f:
+            with open(dir_path / f'unit_files/{unit}.sql','w') as f:
                 f.write(head)
 
     def py_unit(self,dir_path,project_title,unit,create_date,author=None):
