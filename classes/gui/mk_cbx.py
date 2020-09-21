@@ -33,7 +33,10 @@ class Cbx():
         except Exception:
             self.combo.destroy()
     
-    def get(self): return self.combo.get()
+    def get(self):
+        val = self.combo.get()
+        if val: return val
+        else: return ''
     def insert(self,choice):
         print(choice)
         if type(choice) is int:
@@ -70,7 +73,11 @@ class Ent():
         except Exception:
             self.entry.destroy()
 
-    def get(self): return self.entry.get()
+    def get(self):
+        val = self.entry.get()
+        if val: return val
+        else: return ''
+
     def insert(self,txt):
         try:
             self.entry.delete(0, END)
@@ -110,7 +117,11 @@ class Txt():
         except Exception:
             self.text.destroy()
 
-    def get(self): return self.text.get('1.0',END)
+    def get(self):
+        val = self.text.get('1.0',END)
+        if val: return val
+        else: return ''
+        
     def insert(self,txt):
         try:
             self.text.delete('1.0', END)

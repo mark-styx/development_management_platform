@@ -52,7 +52,9 @@ class Main_Menu(Root):
     def toggle_project_home(self,action='create'):
         if action == 'create':
             self.project_home = Project_Home(
-                self.menu,{'kill':self.kill,'destroy':self.destroy_all},self.conf.env_path
+                self.menu,{
+                    'kill':self.kill,'destroy':self.destroy_all
+                    },self.conf.env_path,self.app_objects
                 )
             self.project_home.setup()
         elif action == 'destroy':
@@ -60,18 +62,17 @@ class Main_Menu(Root):
 
 
 from create_menu import Create_Menu
-from editor_view import Edit_Window,Project_Status
 from mk_cbx import Cbx,Ent,Txt
 #from mk_btn import Btn
 from mk_lbl import Lbl
 
 class Project_Home(Frame):
 
-    def __init__(self,parent,tools,proj_home):
+    def __init__(self,parent,tools,proj_home,app_objects):
         self.proj_home = proj_home
         self.parent = parent;self.tools = tools
         self.kill,self.destroy_all = tools['kill'],tools['destroy']
-        self.objects = {}
+        self.objects = app_objects
     
     def setup(self):        
         st_x,st_y = (5,105)
@@ -110,6 +111,8 @@ from _file_ops import file_ops
 #from mk_cbx import Cbx,Ent,Txt
 #from mk_btn import Btn
 #from mk_lbl import Lbl
+from unit_compiler import Unit_Window
+from editor_view import Edit_Window,Project_Status
 
 from tkinter.filedialog import askopenfilename
 from subprocess import Popen
@@ -259,7 +262,10 @@ class Live_Menu():
         st_x,st_y = (155,60)
         self.objects['live_menu']['active']['stats'] = {}
         data = self.objects['live_menu']['active'].get('stats')
-        stats = self.doc_mgr.build_stats()
+        try:
+            stats = self.doc_mgr.build_stats()
+        except Exception as X:
+            stats = 'Stats incomplete for project.'
         data['body'] = Txt(self.parent,(st_x,st_y),size=(250,185))
         data['body'].text.insert('end',stats)
         data['body'].text['state'] = 'disabled'
@@ -323,12 +329,12 @@ class Live_Menu():
         data['dvlp_head'] = Lbl(self.parent,'Develop',(st_x+150,st_y),size=(50,20))
         data['create_units'] = Btn(self.parent,(st_x+125,st_y+20),txt='Create Units',alt_clr=True,cmd=lambda:[
                 #self.csa(data,'create_units')
-                self.active_project.create_unit_files(self.proj_home/self.active_project.title)
+                self.active_project.create_unit_files(
+                    self.proj_home/self.active_project.title)
             ]
         )
         data['reclaim_units'] = Btn(self.parent,(st_x+125,st_y+40),txt='Reclaim Units',alt_clr=True,cmd=lambda:[
-                #self.csa(data,'reclaim_units')
-                self.active_project.get_references(self.proj_home)
+                self.reclaimation()
             ]
         )
         #data['reclaim_units'].button['state'] = 'disabled'
@@ -385,51 +391,8 @@ class Live_Menu():
     def proj_stat_wdw(self):
         self.proj_stat_upd = Project_Status(self.parent,self.objects,self.active_project)
 
-
-#from tkinter import Toplevel,IntVar,Radiobutton
-#from mk_cbx import Cbx,Ent,Txt
-#from mk_btn import Btn
-#from mk_lbl import Lbl
-
-class Unit_Window():
-
-    def __init__(self,parent,objects,tools,proj_home,active_project):
-        self.parent = parent
-        self.objects = objects
-        self.project = active_project
-        self.fields,self.records = active_project.ui_outline()
-        self.proj_home = proj_home
-        self.unit_viewer = Toplevel(parent)
-        self.unit_viewer.title('Unit Compiler')
-        self.unit_viewer.config(bg='#292e30')
-        self.unit = 'inactive'
-        self.viewer()
-
-    def viewer(self):
-        self.objects['unit_viewer'] = {}
-        data = self.objects.get('unit_viewer')
-        self.unit_var = IntVar()
-        for idx,unit in enumerate([x[1] for x in self.records]):
-            data[f'radio_{idx}'] = Radiobutton(
-                self.unit_viewer, 
-                text=unit,bg='#1c1c1f',fg='white',selectcolor='#856c14',
-                indicatoron=0,height=1,
-                variable=self.unit_var,
-                command=lambda:print(self.unit_var.get()),
-                value=idx
-            )
-        for idx,rad in enumerate(data):
-            data[rad].place(x=0,y=26*idx)
-        ly = 30+(26*len(data))
-        data['cancel'] = Btn(self.unit_viewer,(0,ly),(50,20),'Cancel',cmd=self.unit_viewer.destroy)
-        data['confirm'] = Btn(self.unit_viewer,(50,ly),(50,20),'Confirm',cmd=self.set_unit)
-        self.unit_viewer.geometry(f'300x{ly+20}')
-    
-    def set_unit(self):
-        self.unit = self.records[self.unit_var.get()][1]
-        print(self.unit)
-        self.project.compile_unit(self.proj_home,self.unit)
-        self.unit_viewer.destroy()
-
+    def reclaimation(self):
+        unit = self.objects['app_data'].last_compile()
+        self.active_project.reclaim(self.proj_home,unit)
 
 Main_Menu()

@@ -36,7 +36,10 @@ class doc_manager():
             )
         self.tasks = self.db.xquery(f"select task_id,task_name from dmp.project_outlines where project = '{project}' order by task_id asc")
         self.doc_tools = doc_tools(self.project_meta,self.outline)
-        self.repo_stats = self.gconn.get_repo_stats(project)
+        try:
+            self.repo_stats = self.gconn.get_repo_stats(project)
+        except Exception as X:
+            self.repo_stats = 'No repo stats available for project.'
 
     def get_file_lengths(self):
         pth = self.proj_path/'unit_files'

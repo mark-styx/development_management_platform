@@ -2,6 +2,9 @@ from mk_cbx import Cbx,Ent,Txt
 from mk_btn import Btn
 from mk_lbl import Lbl
 
+from project.new_project import New_Project
+from project.outline import Outline
+
 class Create_Menu():
     
     def __init__(self,parent,objects,tools):
@@ -36,7 +39,9 @@ class Create_Menu():
         self.objects['create_menu']['input_form']['desc'] = Txt(
             self.parent,(st_x,st_y+50),(150,100),label=True,txt='Description')
         self.objects['create_menu']['input_form']['lead'] = Cbx(
-            self.parent,(st_x,st_y+150),(150,20),label=True,txt='Lead')
+            self.parent,(st_x,st_y+150),(150,20),label=True,txt='Lead',
+            values=['Mathew Augusthy','Jeff Brown','Mark Styx']
+        )
         self.objects['create_menu']['input_form']['cancel'] = Btn(
             self.parent,(st_x-100,st_y+200),txt='Cancel',alt_clr=True,
             cmd=lambda:[
@@ -44,9 +49,16 @@ class Create_Menu():
                 self.objects['create_menu']['ad_hoc'].deactivate(),
                 self.objects['create_menu']['full'].deactivate()
                 ])
+        functions = {
+            'Full Project':self.add_project,
+            'Ad Hoc':self.add_ad_hoc
+        }
         self.objects['create_menu']['input_form']['accept'] = Btn(
             self.parent,(st_x+50,st_y+200),txt='Accept',alt_clr=True,
-            cmd=lambda:print(self.get_create_inputs()))
+            cmd=lambda:[
+                    functions[category]()                    
+                ]
+        )
         self.objects['create_menu']['input_form']['canvas'] = self.parent.create_rectangle(
             150,5,520,250,fill='#1c1c1f')
 
@@ -57,3 +69,22 @@ class Create_Menu():
             'desc': self.objects['create_menu']['input_form']['desc'].get(),
             'lead': self.objects['create_menu']['input_form']['lead'].get()
             }
+
+    def add_project(self):
+        data =  self.get_create_inputs()
+        New_Project(
+            data['title'],
+            data['desc'],
+            data['lead']
+        )
+        self.kill(self.objects['create_menu']['input_form'])
+        self.objects['create_menu']['full'].deactivate()
+    
+    def add_ad_hoc(self):
+        data =  self.get_create_inputs()
+        project = Outline('Ad_Hoc')
+        project.add_to_outline(
+            data['title'],data['desc'],data['lead']
+        )
+        self.kill(self.objects['create_menu']['input_form'])
+        self.objects['create_menu']['ad_hoc'].deactivate()

@@ -41,7 +41,7 @@ class Outline(Project):
 
     def ui_outline(self):
         fields = ['task_id','task_name','task_status','owner']
-        reslts = self.dbcon.xquery(f"select {','.join(fields)} from dmp.project_outlines  where project = '{self.title}'")
+        reslts = self.dbcon.xquery(f"select {','.join(fields)} from dmp.project_outlines  where project = '{self.title}' order by task_id asc")
         return fields,reslts
 
     def ui_outline_edit(self):
@@ -61,8 +61,8 @@ class Outline(Project):
     def create_unit_files(self,dir_path):
         try:
             for unit in self.dbcon.xquery(f"select task_name from dmp.project_outlines where project = '{self.title}'"):
-                print(dir_path,self.title,unit)
-                self.fops.sql_unit(dir_path,self.title,unit,self.gconn.name)
+                print(dir_path,self.title,str(unit[0]))
+                self.fops.sql_unit(dir_path,self.title,str(unit[0]),self.gconn.name)
         except Exception as X:
             print(str(X))
 
@@ -104,8 +104,14 @@ class Outline(Project):
         output = ''
         for f in files:
             with open(dir_path/self.title/f'unit_files/{str(f[0])}.sql', 'r') as fn:
+                if unit in f:
+                    output += f'-- compile_header: 0001001000\n\n'
                 output += fn.read() + '\n\n'
-        fname = dir_path/self.title/f"working_files/{unit}_compiled_{str(dt.now().date()).replace('-','_')}.sql"
+        fname = dir_path/self.title/f"working_files/{unit}_compiled_{str(dt.now().date())}.sql"
         with open(fname,'w') as f:
             f.write(output)
         startfile(str(fname))
+
+    def reclaim(self,dir_path,unit):
+        rec = Reclaim(dir_path,self.title)
+        rec.reclaim_unit(unit)

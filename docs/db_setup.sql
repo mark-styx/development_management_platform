@@ -53,6 +53,21 @@ set dev_status = case
     ) then 'active' else 'inactive' end
 ;
 
+create trigger dmp.dev_status
+on dmp.project_list after insert
+as
+begin
+	set nocount on;
+	
+	update dmp.project_list
+    set dmp.project_list.dev_status = psl.dev_status
+    from dmp.project_status_list psl
+    where dmp.project_list.dev_status is null
+        and project_status = psl.[status]
+
+end
+;
+
 create table dmp.project_outlines (
     rkey int identity,
     project nvarchar(255),
@@ -186,15 +201,9 @@ begin
 end
 ;
 
-*/
-
 -- exec sp_rename 'dmp.project_outlines.task_dependancies', 'task_dependencies', 'COLUMN';
 
-use dmp_dev_env
-
-select * from dmp.project_list
-select * from dmp.project_outlines
-
+/*
 insert into dmp.project_outlines (
     project,task_name,task_id
     )
@@ -237,7 +246,7 @@ from #dates
 where k = task_id
     and project = 'testing001'
 ;
-
+*/
 select * from dmp.project_outlines where project = 'testing004'
 select * from dmp.project_list where project = 'testing004'
 

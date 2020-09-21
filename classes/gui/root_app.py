@@ -10,6 +10,7 @@ from glob import glob
 sys.path.append(dirname(dirname(abspath(getsourcefile(lambda:0)))))
 
 from _conf import config
+from app_data import App_Data
 
 class Root():
 
@@ -18,7 +19,8 @@ class Root():
         self.conf = config()
         self.app_objects = {
             'images':{},
-            'icons':{}
+            'icons':{},
+            'app_data':App_Data()
         }
         self.get_images()
         self.app_color = '#292e30' #'#1a1a1f'#222233'

@@ -7,6 +7,7 @@ class New_Project(Project):
 
     def __init__(self,title,desc=None,lead=None):
         '''Initializes the new project'''
+        title = title.replace(' ','_')
         super().__init__(title,desc,lead)
         if not lead: self.lead = self.gconn.name
         self.create_dirs(title)
@@ -38,7 +39,7 @@ class New_Project(Project):
             project,project_desc,project_status,project_lead,create_date
             )
         values
-            ('{self.title}','{self.desc}','new','{self.lead}','{str(dt.now().date())}')
+            ('{self.title}','{self.desc}','Pending Analyst Review','{self.lead}','{str(dt.now().date())}')
         '''
 
         if self.dev_mode: self.dbcon.xquery(q)
