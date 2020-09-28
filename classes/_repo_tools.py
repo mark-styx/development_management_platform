@@ -150,3 +150,35 @@ class git_conn():
         repo_stats['deletions'] = deletions
         repo_stats['total_changes'] = sum(repo_stats['additions']) + sum(repo_stats['deletions'])
         return repo_stats
+
+    def create_issue(self,repo,issue_title,desc,assigned):
+        repo = self.org.get_repo(repo)
+        members = self.org.get_members()
+        users = [usr.name for usr in members]
+        user = members[users.index(assigned)].login
+        repo.create_issue(issue_title,desc,user)
+
+    def list_issues(self,repo):
+        repo = self.org.get_repo(repo)
+        issues = repo.get_issues()
+        self.issues = issues
+        return [issue.title for issue in issues]
+
+    def get_issue(self,repo,issue_title):
+        repo = self.org.get_repo(repo)
+        try:
+            issue = self.issues[[issue.title for issue in self.issues].index(issue_title)]
+        except Exception:
+            issues = repo.get_issues()
+            issue = issues[[issue.title for issue in issues].index(issue_title)]
+        return issue
+
+    def get_last_issue_update(self,repo,issue=None,issue_title=None):
+        if not issue:
+            issue = self.get_issue(repo,issue_title)
+        comments = issue.get_comments()
+        if list(comments):
+            last_update = comments[-1].body
+        else:
+            last_update = issue.body
+        return last_update

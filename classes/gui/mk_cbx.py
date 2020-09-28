@@ -37,6 +37,7 @@ class Cbx():
         val = self.combo.get()
         if val: return val
         else: return ''
+        
     def insert(self,choice):
         print(choice)
         if type(choice) is int:

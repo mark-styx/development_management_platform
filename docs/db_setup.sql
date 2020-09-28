@@ -99,6 +99,7 @@ create table dmp.test_logs (
 create table dmp.bug_reports (
     rkey int identity,
     project nvarchar(255),
+    title nvarchar(255),
     bug_description nvarchar(max),
     analyst_assigned nvarchar(255),
     reported_by nvarchar(255),
@@ -201,6 +202,20 @@ begin
 end
 ;
 
+-- trigger to add date to table
+create trigger dmp.bug_reports_timestamp
+on dmp.bug_reports after insert
+as
+begin
+	set nocount on;
+	
+	update dmp.bug_reports
+    set dmp.bug_reports.reported_date = getdate()
+    where dmp.bug_reports.reported_date is null
+
+end
+;
+
 -- exec sp_rename 'dmp.project_outlines.task_dependancies', 'task_dependencies', 'COLUMN';
 
 /*
@@ -251,3 +266,5 @@ select * from dmp.project_outlines where project = 'testing004'
 select * from dmp.project_list where project = 'testing004'
 
 select * from dmp.project_status_list
+
+select * from dmp.bug_reports

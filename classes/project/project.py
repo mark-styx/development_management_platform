@@ -79,3 +79,22 @@ class Project():
             self.dbcon.xquery(f"update dmp.project_list set project_status = '{new_stat}' where project = '{self.title}'")
             self.dbcon.xquery(f"update dmp.project_outlines set task_status = '{new_stat}' where project = '{self.title}'")
             self.stat = new_stat
+
+    def report_bug(self,bug_title,desc,analyst,reported_by):
+        q = f'''insert into dmp.bug_reports (
+            project,title,bug_description,analyst_assigned,reported_by
+        )
+        values
+            ('{self.title}','{bug_title}','{desc}','{analyst}','{reported_by}')
+        '''
+        self.dbcon.xquery(q)
+        self.gconn.create_issue(self.title,bug_title,desc,analyst)
+
+    def get_issues(self):
+        return self.gconn.list_issues(self.title)
+    
+    def select_issue(self,issue):
+        self.issue = self.gconn.get_issue(self.title,issue)
+
+    def last_issue_update(self):
+        self.gconn.get_last_issue_update(self.title,issue=self.issue)
