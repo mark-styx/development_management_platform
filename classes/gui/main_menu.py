@@ -115,6 +115,8 @@ class Project_Home(Frame):
         self.bug_menu = Bug_Menu(self.parent,self.objects,self.tools,self.proj_home)
 
 
+import webbrowser
+
 from project.project import Project
 from project.outline import Outline
 
@@ -146,7 +148,10 @@ class Bug_Menu():
         data['existing'] = Btn(
             self.parent,(st_x,st_y + 20),txt='View Issues',
             cmd=lambda:[self.view_issues()],
-            toggle=True,deact_cmd=lambda:[]
+            toggle=True,deact_cmd=lambda:[
+                self.kill(data['view_issues']),
+                self.kill(data['issue_sub_menu'])
+                ]
             )
         data['canvas'] = self.parent.create_rectangle(0,210,110,260,fill='#1c1c1f')
 
@@ -221,22 +226,39 @@ class Bug_Menu():
             self.parent,(st_x,st_y+120),(150,20),label=True,txt='Analyst Assigned',
             values=['Mathew Augusthy','Jeff Brown','Mark Styx']
         )
-        data['analyst_assigned'].insert(self.active_project.issue.assignee)
+        data['analyst_assigned'].insert(self.active_project.issue.assignee.name)
         data['desc'].insert(self.active_project.last_issue_update())
         data['submit'] = Btn(
             self.parent,(337,st_y+180),(75,20),alt_clr=True,txt='Update',
             cmd=lambda:[
-                self.active_project.report_bug(
-                    data['title'].get(),data['desc'].get(),
-                    data['analyst_assigned'].get(),data['reported_by'].get()
+                self.active_project.update_issue(
+                    data['desc'].get(),
+                    data['analyst_assigned'].get()
                 ),
-                self.objects['bug_menu']['new'].toggle()
+                self.objects['bug_menu']['existing'].toggle()
             ]
         )
         data['cancel'] = Btn(
             self.parent,(258,st_y+180),(75,20),alt_clr=True,txt='Cancel',
-            cmd=lambda:[self.objects['bug_menu']['new'].toggle()]
+            cmd=lambda:[self.objects['bug_menu']['existing'].toggle()]
         )
+        self.issue_sub_menu()
+
+    def issue_sub_menu(self):
+        self.objects['bug_menu']['issue_sub_menu'] = {}
+        data = self.objects['bug_menu'].get('issue_sub_menu')
+        st_x,st_y = (5,285)
+        data['issue_link'] = Btn(
+            self.parent,(st_x,st_y),txt='Issue Link',
+            cmd=lambda:[webbrowser.open(
+                f'https://github.com/Dentsu-Aegis-Reporting-and-Automation/testing004/issues/{self.active_project.issue.number}'
+            )]
+            )
+        data['close_issue'] = Btn(
+            self.parent,(st_x,st_y + 20),txt='Close Issue',
+            cmd=lambda:[self.active_project.close_issue()]
+            )
+        data['canvas'] = self.parent.create_rectangle(0,280,110,340,fill='#1c1c1f')
 
     def issue_selector(self):
         st_x,st_y = (260,25)

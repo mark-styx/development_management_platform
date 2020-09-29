@@ -1,6 +1,8 @@
 import sys,os
 sys.path.append(r'C:\Users\mstyx\Anchor\development_management_platform\classes')
 
+from datetime import datetime as dt
+
 # development mode status
 from __dev_mode___ import dev_mode
 
@@ -93,8 +95,27 @@ class Project():
     def get_issues(self):
         return self.gconn.list_issues(self.title)
     
+    def close_issue(self):
+        self.issue.edit(state='closed')
+        self.dbcon.xquery(f'''
+            update dmp.bug_reports
+            set status = 'Closed'
+            where project = '{self.title}' and title = '{self.issue.title}'
+            ''')
+
+    def update_issue(self,body,assignee):
+        self.dbcon.xquery(f'''
+            update dmp.bug_reports
+            set last_update = '{dt.now().date()}'
+            where project = '{self.title}' and title = '{self.issue.title}'
+            ''')
+        self.issue.create_comment(body)
+        if self.issue.assignee.name != assignee:
+            self.issue.remove_from_assignees(self.issue.assignee.login)
+            self.issue.add_to_assignees(self.gconn.get_user(assignee))
+
     def select_issue(self,issue):
         self.issue = self.gconn.get_issue(self.title,issue)
 
     def last_issue_update(self):
-        self.gconn.get_last_issue_update(self.title,issue=self.issue)
+        return self.gconn.get_last_issue_update(self.title,issue=self.issue)

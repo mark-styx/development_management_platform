@@ -21,6 +21,7 @@ class git_conn():
         self.name,self.login = self.user.name,self.user.login
         self.org = self.git.get_organization('Dentsu-Aegis-Reporting-and-Automation')
         self.dev_team = [x for x in list(self.org.get_teams()) if 'dev_team' in x.name].pop()
+        self.get_org_members()
 
     def set_repo_perm(self,entity,repo_name,perm):
         '''Update the repository permissions for a user or team.
@@ -151,11 +152,16 @@ class git_conn():
         repo_stats['total_changes'] = sum(repo_stats['additions']) + sum(repo_stats['deletions'])
         return repo_stats
 
+    def get_org_members(self):
+        self.members = self.org.get_members()
+        self.users = [usr.name for usr in self.members]
+    
+    def get_user(self,name):
+        return self.members[self.users.index(name)].login
+
     def create_issue(self,repo,issue_title,desc,assigned):
         repo = self.org.get_repo(repo)
-        members = self.org.get_members()
-        users = [usr.name for usr in members]
-        user = members[users.index(assigned)].login
+        user = self.get_user(assigned)
         repo.create_issue(issue_title,desc,user)
 
     def list_issues(self,repo):

@@ -210,7 +210,9 @@ begin
 	set nocount on;
 	
 	update dmp.bug_reports
-    set dmp.bug_reports.reported_date = getdate()
+    set
+        dmp.bug_reports.reported_date = getdate(),
+        dmp.bug_reports.status = 'Open'
     where dmp.bug_reports.reported_date is null
 
 end
