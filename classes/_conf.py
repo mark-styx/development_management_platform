@@ -65,7 +65,7 @@ class config():
     def add_configuration(self,payload,encrypt=None):
         '''Add a configuration to the conf dictionary.
         Accepts a dictionary payload formatted as {'category':{'sub category':'value'}}
-        input: payload_dictionary,encrpytion:True/False
+        input: payload_dictionary,encryption:True/False
         updates: configuration dictionary'''
 
         d = self.open_conf()
@@ -146,6 +146,6 @@ class config():
         assert(ctrl.get('key') == 1928)
         new_conf_dict = self.update_encryption(new_conf_dict)
         with open(self.config_dir/'data.cfg','wb') as f: pickle.dump(new_conf_dict,f)
-
+    
 if __name__ == "__main__":
     pass

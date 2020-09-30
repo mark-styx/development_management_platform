@@ -25,7 +25,7 @@ class Live_Menu():
         self.tools = tools
         self.kill,self.destroy_all = tools['kill'],tools['destroy']
         proj_list,fields = Project(find=True).view_all()
-        self.live_proj_list = [x for x in proj_list if 'active' in x[4]]
+        self.live_proj_list = [x for x in proj_list if x[4] == 'active']
         self.live_menu()
 
     def live_menu(self):

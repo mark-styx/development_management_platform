@@ -1,6 +1,7 @@
 from tkinter import *
 
 from root_app import Root
+from project_home import Project_Home
 from mk_btn import Btn
 
 class Main_Menu(Root):
@@ -19,9 +20,12 @@ class Main_Menu(Root):
         st_x,st_y = (5,10)
         self.app_objects['main_menu']['project_home'] = Btn(
             self.menu,(st_x,st_y),txt='Project Home',toggle=True,cmd=self.toggle_project_home,deact_cmd=lambda:self.toggle_project_home('destroy')
-            )
-        self.app_objects['main_menu']['settings'] = Btn(self.menu,(st_x,st_y + 20),txt='Settings',toggle=True)
-        self.app_objects['main_menu']['settings'].button['state'] = 'disabled'
+        )
+        self.app_objects['main_menu']['settings'] = Btn(
+            self.menu,(st_x,st_y + 20),txt='Settings',toggle=True,
+            cmd=self.launch_settings_menu,
+            deact_cmd=lambda:[self.destroy_all(self.app_objects['settings_menu'])]
+        )
         self.app_objects['main_menu']['quit'] = Btn(self.menu,(st_x,st_y + 40),txt='Quit',cmd=quit)
         self.menu.create_rectangle(0,0,110,80,fill='#1c1c1f')
 
@@ -55,226 +59,173 @@ class Main_Menu(Root):
                 self.menu,{
                     'kill':self.kill,'destroy':self.destroy_all
                     },self.conf.env_path,self.app_objects
-                )
+            )
             self.project_home.setup()
         elif action == 'destroy':
-            self.project_home.destroy_all(self.project_home.objects)
+            self.destroy_all(self.app_objects['project_home'])
+    
+    def launch_settings_menu(self):
+        self.settings_menu = Settings_Menu(
+            self.menu,{'kill':self.kill,'destroy':self.destroy_all},
+            self.conf.env_path,self.app_objects
+            )
 
 
-from create_menu import Create_Menu
-from live_menu import Live_Menu
+import json
+
+from _conf import config
+
 from mk_cbx import Cbx,Ent,Txt
 #from mk_btn import Btn
 from mk_lbl import Lbl
 
-class Project_Home(Frame):
+class Settings_Menu():
 
     def __init__(self,parent,tools,proj_home,app_objects):
         self.proj_home = proj_home
         self.parent = parent;self.tools = tools
         self.kill,self.destroy_all = tools['kill'],tools['destroy']
-        self.objects = app_objects
-    
-    def setup(self):        
+        app_objects['settings_menu'] = {}
+        self.objects = app_objects.get('settings_menu')
+        self.conf = config()
+        self.setup()
+
+    def setup(self):
         st_x,st_y = (5,105)
-        self.objects['create'] = Btn(
-            self.parent,(st_x,st_y),txt='Create',cmd=self.proj_create_menu,
-            deact_cmd=lambda:self.destroy_all(self.create_menu.objects['create_menu']),toggle=True)
-        self.objects['live_projects'] = Btn(
-            self.parent,(st_x,st_y + 20),txt='Live Projects',
-            cmd=self.live_proj_menu,
-            deact_cmd=lambda:self.destroy_all(self.live_menu.objects['live_menu']),
+        self.objects['add'] = Btn(
+            self.parent,(st_x,st_y),txt='Add Config',
+            cmd=lambda:[ self.add_menu() ],
+            deact_cmd=lambda:[ self.kill(self.objects['add_menu']) ],
+            toggle=True)
+        self.objects['rem'] = Btn(
+            self.parent,(st_x,st_y + 20),txt='Remove Config',
+            cmd=lambda:[ self.rem_menu() ],
+            deact_cmd=lambda:[ self.kill(self.objects['rem_menu']) ],
             toggle=True
         )
-        self.objects['bug_reporting'] = Btn(
-            self.parent,(st_x,st_y + 40),txt='Bug Reporting',
-            cmd=self.bug_report_menu,
-            deact_cmd=lambda:self.destroy_all(self.objects['bug_menu']),
+        self.objects['upd'] = Btn(
+            self.parent,(st_x,st_y + 40),txt='Update Config',
+            cmd=lambda:[ self.upd_menu() ],
+            deact_cmd=lambda:[ self.kill(self.objects['upd_menu']) ],
             toggle=True
         )
-        self.objects['view_archived'] = Btn(self.parent,(st_x,st_y + 60),txt='View Archived')
-        self.objects['view_archived'].button['state'] = 'disabled'
+        self.objects['view'] = Btn(
+            self.parent,(st_x,st_y + 60),txt='View Settings',
+            cmd=lambda:[ self.view_menu() ],
+            deact_cmd=lambda:[ self.kill(self.objects['view_menu']) ],
+            toggle=True
+        )
         self.objects['canvas'] = self.parent.create_rectangle(0,100,110,190,fill='#1c1c1f')
 
-    def clear_switches(self,tg_btn):
-        for btn in ['create','live_projects','bug_reporting','view_archived']:
-            if tg_btn not in btn:
-                if self.objects[btn].active:
-                    self.objects[btn].toggle()
-
-    def proj_create_menu(self):
-        self.clear_switches('create')
-        self.create_menu = Create_Menu(self.parent,self.objects,self.tools)
-
-    def live_proj_menu(self):
-        self.clear_switches('live_projects')
-        self.live_menu = Live_Menu(self.parent,self.objects,self.tools,self.proj_home)
-
-    def bug_report_menu(self):
-        self.clear_switches('bug_reporting')
-        self.bug_menu = Bug_Menu(self.parent,self.objects,self.tools,self.proj_home)
-
-
-import webbrowser
-
-from project.project import Project
-from project.outline import Outline
-
-# from mk_cbx import Cbx,Ent,Txt
-# from mk_btn import Btn
-# from mk_lbl import Lbl
-
-class Bug_Menu():
-    
-    def __init__(self,parent,objects,tools,proj_home):
-        self.parent = parent
-        self.objects = objects
-        self.proj_home = proj_home
-        self.tools = tools
-        self.kill,self.destroy_all = tools['kill'],tools['destroy']
-        proj_list,fields = Project(find=True).view_all()
-        self.live_proj_list = proj_list
-        self.sub_menu()
-
-    def sub_menu(self):
-        self.objects['bug_menu'] = {}
-        data = self.objects.get('bug_menu')
-        st_x,st_y = (5,215)
-        data['new'] = Btn(
-            self.parent,(st_x,st_y),txt='New Issue',
-            cmd=lambda:[self.bug_menu()],
-            toggle=True,deact_cmd=lambda:[self.kill(data['create_issue'])]
-            )
-        data['existing'] = Btn(
-            self.parent,(st_x,st_y + 20),txt='View Issues',
-            cmd=lambda:[self.view_issues()],
-            toggle=True,deact_cmd=lambda:[
-                self.kill(data['view_issues']),
-                self.kill(data['issue_sub_menu'])
-                ]
-            )
-        data['canvas'] = self.parent.create_rectangle(0,210,110,260,fill='#1c1c1f')
-
-    def bug_menu(self):
+    def add_menu(self):
+        self.objects['add_menu'] = {}
+        data = self.objects.get('add_menu')
         st_x,st_y = (260,25)
-        self.objects['bug_menu']['create_issue'] = {}
-        data = self.objects['bug_menu'].get('create_issue')
-        data['selector'] = Cbx(
-            self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),txt='Select Project',values=[x[1] for x in self.live_proj_list])
-        data['accept_proj'] = Btn(
-            self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True,
-            cmd=self.activate_project)
         data['canvas'] = self.parent.create_rectangle(150,5,520,250,fill='#1c1c1f')
-    
-    def view_issues(self):
-        st_x,st_y = (260,25)
-        self.objects['bug_menu']['view_issues'] = {}
-        data = self.objects['bug_menu'].get('view_issues')
-        data['selector'] = Cbx(
-            self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),txt='Select Project',values=[x[1] for x in self.live_proj_list])
-        data['accept_proj'] = Btn(
-            self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True,
-            cmd=lambda:[self.activate_project(True)])
-        data['canvas'] = self.parent.create_rectangle(150,5,520,250,fill='#1c1c1f')
-
-    def activate_project(self,viewer=False):
-        if viewer:
-            self.active_project = Outline(self.objects['bug_menu']['view_issues']['selector'].get())
-            self.issue_selector()
-        else: 
-            self.active_project = Outline(self.objects['bug_menu']['create_issue']['selector'].get())
-            self.bug_form()
-
-    def bug_form(self):
-        st_x,st_y = (300,50)
-        data = self.objects['bug_menu'].get('create_issue')
         data['title'] = Ent(
-            self.parent,(st_x,st_y),(150,20),label=True,txt='Bug Title'
+            self.parent,(st_x,st_y),txt='Title',label=True
         )
-        data['desc'] = Txt(
-            self.parent,(st_x,st_y+20),(150,100),label=True,txt='Description'
+        data['key'] = Ent(
+            self.parent,(st_x,st_y),txt='Key',label=True
         )
-        data['analyst_assigned'] = Cbx(
-            self.parent,(st_x,st_y+120),(150,20),label=True,txt='Analyst Assigned',
-            values=['Mathew Augusthy','Jeff Brown','Mark Styx']
-        )
-        data['reported_by'] = Ent(
-            self.parent,(st_x,st_y+140),(150,20),label=True,txt='Reported By'
-        )
-        data['submit'] = Btn(
-            self.parent,(337,st_y+180),(75,20),alt_clr=True,txt='Submit',
-            cmd=lambda:[
-                self.active_project.report_bug(
-                    data['title'].get(),data['desc'].get(),
-                    data['analyst_assigned'].get(),data['reported_by'].get()
-                ),
-                self.objects['bug_menu']['new'].toggle()
-            ]
+        data['value'] = Ent(
+            self.parent,(st_x,st_y),txt='Value',label=True
         )
         data['cancel'] = Btn(
-            self.parent,(258,st_y+180),(75,20),alt_clr=True,txt='Cancel',
-            cmd=lambda:[self.objects['bug_menu']['new'].toggle()]
+            self.status,(73,st_y+55),(75,20),txt='Cancel',alt_clr=True,
+            cmd=lambda:[ self.objects['add'].toggle() ]
         )
-
-    def viewer_form(self):
-        st_x,st_y = (300,30)
-        data = self.objects['bug_menu'].get('view_issues')
-        data['desc'] = Txt(
-            self.parent,(st_x,st_y+20),(150,100),label=True,txt='Last Update'
-        )
-        data['analyst_assigned'] = Cbx(
-            self.parent,(st_x,st_y+120),(150,20),label=True,txt='Analyst Assigned',
-            values=['Mathew Augusthy','Jeff Brown','Mark Styx']
-        )
-        data['analyst_assigned'].insert(self.active_project.issue.assignee.name)
-        data['desc'].insert(self.active_project.last_issue_update())
-        data['submit'] = Btn(
-            self.parent,(337,st_y+180),(75,20),alt_clr=True,txt='Update',
+        data['confirm'] = Btn(
+            self.status,(152,st_y+55),(75,20),txt='Confirm',alt_clr=True,
             cmd=lambda:[
-                self.active_project.update_issue(
-                    data['desc'].get(),
-                    data['analyst_assigned'].get()
+                self.conf.add_configuration(
+                    { data['title'].get() : { data['key'] : data['value'] } }
                 ),
-                self.objects['bug_menu']['existing'].toggle()
+                self.objects['add'].toggle()
             ]
         )
-        data['cancel'] = Btn(
-            self.parent,(258,st_y+180),(75,20),alt_clr=True,txt='Cancel',
-            cmd=lambda:[self.objects['bug_menu']['existing'].toggle()]
-        )
-        self.issue_sub_menu()
 
-    def issue_sub_menu(self):
-        self.objects['bug_menu']['issue_sub_menu'] = {}
-        data = self.objects['bug_menu'].get('issue_sub_menu')
-        st_x,st_y = (5,285)
-        data['issue_link'] = Btn(
-            self.parent,(st_x,st_y),txt='Issue Link',
-            cmd=lambda:[webbrowser.open(
-                f'https://github.com/Dentsu-Aegis-Reporting-and-Automation/testing004/issues/{self.active_project.issue.number}'
-            )]
-            )
-        data['close_issue'] = Btn(
-            self.parent,(st_x,st_y + 20),txt='Close Issue',
-            cmd=lambda:[self.active_project.close_issue()]
-            )
-        data['canvas'] = self.parent.create_rectangle(0,280,110,340,fill='#1c1c1f')
-
-    def issue_selector(self):
+    def rem_menu(self):
+        conf = self.conf.open_conf()
+        self.objects['rem_menu'] = {}
+        data = self.objects.get('rem_menu')
         st_x,st_y = (260,25)
-        data = self.objects['bug_menu'].get('view_issues')
-        data['selector'].destroy()
-        data['accept_proj'].destroy()
-        data['title'] = Cbx(
+        data['canvas'] = self.parent.create_rectangle(150,5,520,250,fill='#1c1c1f')
+        data['selector'] = Cbx(
             self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),
-            txt='Select Bug',values=self.active_project.get_issues()
+            txt='Select Configuration',values=[x for x in conf]
         )
-        data['accept_bug'] = Btn(
+        data['accept'] = Btn(
             self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True,
             cmd=lambda:[
-                self.active_project.select_issue(data['title'].get()),
-                self.viewer_form()
+                data['value'].insert(conf[data['selector'].get()])
             ]
         )
+        data['value'] = Txt(
+            self.parent,(st_x,st_y+40),size=(250,185)
+        )
+        data['cancel'] = Btn(
+            self.status,(73,st_y+55),(75,20),txt='Cancel',alt_clr=True,
+            cmd=lambda:[ self.objects['add'].toggle() ]
+        )
+        data['confirm'] = Btn(
+            self.status,(152,st_y+55),(75,20),txt='Confirm Removal',alt_clr=True,
+            cmd=lambda:[
+                self.conf.rem_configuration( data['selector'].get() ),
+                self.objects['rem'].toggle()
+            ]
+        )
+
+    def upd_menu(self):
+        conf = self.conf.open_conf()
+        self.objects['upd_menu'] = {}
+        data = self.objects.get('upd_menu')
+        st_x,st_y = (260,25)
+        data['canvas'] = self.parent.create_rectangle(150,5,520,250,fill='#1c1c1f')
+        data['selector'] = Cbx(
+            self.parent,(st_x,st_y),label=True,label_loc='above',size=(150,20),
+            txt='Select Configuration',values=[x for x in conf]
+        )
+        data['accept'] = Btn(
+            self.parent,(st_x+150,st_y),txt='Accept',alt_clr=True,
+            cmd=lambda:[
+                data['key'].insert( str(conf[data['selector'].get()].keys()) ),
+                data['value'].insert( str(conf[data['selector'].get()].values()) )
+            ]
+        )
+        data['key'] = Ent(
+            self.parent,(st_x,st_y),txt='Key',label=True
+        )
+        data['value'] = Ent(
+            self.parent,(st_x,st_y),txt='Value',label=True
+        )
+        data['cancel'] = Btn(
+            self.status,(73,st_y+55),(75,20),txt='Cancel',alt_clr=True,
+            cmd=lambda:[ self.objects['add'].toggle() ]
+        )
+        data['confirm'] = Btn(
+            self.status,(152,st_y+55),(75,20),txt='Confirm',alt_clr=True,
+            cmd=lambda:[
+                self.conf.upd_configuration(
+                    { data['selector'].get() : { data['key'] : data['value'] } }
+                ),
+                self.objects['add'].toggle()
+            ]
+        )
+
+    def view_menu(self):
+        conf = self.conf.open_conf()
+        for pth in conf['paths']:
+            conf['paths'][pth] = str(conf['paths'][pth])
+        print(conf)
+        self.objects['view_menu'] = {}
+        data = self.objects.get('view_menu')
+        st_x,st_y = (260,25)
+        data['canvas'] = self.parent.create_rectangle(150,5,520,250,fill='#1c1c1f')
+        data['data'] = Txt(
+            self.parent,(st_x,st_y),(250,250)
+        )
+        data['data'].insert(json.dumps(conf))
+
 
 Main_Menu()
