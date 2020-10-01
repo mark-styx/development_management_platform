@@ -12,7 +12,7 @@ class Cbx():
             if not lbl_size:
                 lh,lw = h,w
             else:
-                lh,lw = lbl_size
+                lw,lh = lbl_size
             self.add_label(parent,txt,label_loc,(x,y),lh,lw)
 
     def add_label(self,parent,label_txt,label_loc,loc,h,w):
@@ -25,19 +25,22 @@ class Cbx():
             }
         x,y = location[label_loc](loc)
         self.label.place(x=x,y=y,width=w,height=h)
-    
+
+    def add_values(self,values):
+        self.combo['values'] = values
+
     def destroy(self):
         try:
             self.label.destroy()
             self.combo.destroy()
         except Exception:
             self.combo.destroy()
-    
+
     def get(self):
         val = self.combo.get()
-        if val: return val
+        if val: return val.strip()
         else: return ''
-        
+
     def insert(self,choice):
         print(choice)
         if type(choice) is int:
@@ -55,7 +58,7 @@ class Ent():
         self.entry.place(x=x,y=y,height=h,width=w)
         if label:
             self.add_label(parent,txt,label_loc,(x,y),h,w)
-    
+
     def add_label(self,parent,label_txt,label_loc,loc,h,w):
         self.label = Label(parent,bg='#1c1c1f',fg='white',text=label_txt)
         location = {
@@ -66,7 +69,7 @@ class Ent():
             }
         x,y = location[label_loc](loc)
         self.label.place(x=x,y=y,width=w,height=h)
-    
+
     def destroy(self):
         try:
             self.label.destroy()
@@ -76,7 +79,7 @@ class Ent():
 
     def get(self):
         val = self.entry.get()
-        if val: return val
+        if val: return val.strip()
         else: return ''
 
     def insert(self,txt):
@@ -88,7 +91,7 @@ class Ent():
 
 class Txt():
     def __init__(
-        self,parent,loc,size=(100,20),label=False,txt=None,label_loc='left',width=None,height=None
+        self,parent,loc,size=(100,20),label=False,txt=None,label_loc='left',width=None,height=None,lbl_size=None
         ):
 
         self.text = Text(
@@ -98,8 +101,12 @@ class Txt():
         x,y = loc; w,h = size
         self.text.place(x=x,y=y,height=h,width=w)
         if label:
-            self.add_label(parent,txt,label_loc,(x,y),h,w)
-    
+            if not lbl_size:
+                lh,lw = h,w
+            else:
+                lw,lh = lbl_size
+            self.add_label(parent,txt,label_loc,(x,y),lh,lw)
+
     def add_label(self,parent,label_txt,label_loc,loc,h,w):
         self.label = Label(parent,bg='#1c1c1f',fg='white',text=label_txt)
         location = {
@@ -110,7 +117,7 @@ class Txt():
             }
         x,y = location[label_loc](loc)
         self.label.place(x=x,y=y,width=w,height=h)
-    
+
     def destroy(self):
         try:
             self.label.destroy()
@@ -120,9 +127,9 @@ class Txt():
 
     def get(self):
         val = self.text.get('1.0',END)
-        if val: return val
+        if val: return val.strip()
         else: return ''
-        
+
     def insert(self,txt):
         try:
             self.text.delete('1.0', END)

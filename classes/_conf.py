@@ -98,7 +98,7 @@ class config():
         for key in conf_to_upd:
             d[key].update(conf_to_upd[key])
         self.save_conf(d)
-    
+
     # adds encryption to all values that require
     def update_encryption(self,conf_dict):
         '''Updates the encryption of all values in the conf dictionary that require encryption.'''
