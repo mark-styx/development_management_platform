@@ -6,7 +6,7 @@ from settings import Settings_Menu
 from mk_btn import Btn
 
 class Main_Menu(Root):
-    
+
     def __init__(self):
         super().__init__()
         self.app_objects['main_menu'] = {}
@@ -20,7 +20,9 @@ class Main_Menu(Root):
         self.bknd = self.menu.create_image(300,168.5,image=self.app_objects['images']['bkgd2'])
         st_x,st_y = (5,10)
         self.app_objects['main_menu']['project_home'] = Btn(
-            self.menu,(st_x,st_y),txt='Project Home',toggle=True,cmd=self.toggle_project_home,deact_cmd=lambda:self.toggle_project_home('destroy')
+            self.menu,(st_x,st_y),txt='Project Home',toggle=True,
+            cmd=self.launch_project_home,
+            deact_cmd=lambda:self.destroy_all(self.app_objects['project_home'])
         )
         self.app_objects['main_menu']['settings'] = Btn(
             self.menu,(st_x,st_y + 20),txt='Settings',toggle=True,
@@ -53,23 +55,31 @@ class Main_Menu(Root):
                 obj_dict[obj].destroy()
             else:
                 self.menu.delete(obj_dict[obj])
-        
-    def toggle_project_home(self,action='create'):
-        if action == 'create':
-            self.project_home = Project_Home(
-                self.menu,{
-                    'kill':self.kill,'destroy':self.destroy_all
-                    },self.conf.env_path,self.app_objects
+
+    def clear_switches(self,active):
+        data = self.app_objects['main_menu']
+        for obj in data:
+            if obj != active and type(data[obj]) == Btn:
+                try:
+                    if data[obj].active:
+                        data[obj].toggle()
+                except Exception:
+                    continue
+
+    def launch_project_home(self):
+        self.clear_switches('project_home')
+        self.project_home = Project_Home(
+            self.menu,{'kill':self.kill,'destroy':self.destroy_all},
+            self.conf.env_path,self.app_objects
             )
-            self.project_home.setup()
-        elif action == 'destroy':
-            self.destroy_all(self.app_objects['project_home'])
-    
+        self.project_home.setup()
+
     def launch_settings_menu(self):
+        self.clear_switches('settings')
         self.settings_menu = Settings_Menu(
             self.menu,{'kill':self.kill,'destroy':self.destroy_all},
             self.conf.env_path,self.app_objects
             )
 
-
-Main_Menu()
+if __name__ == "__main__":
+    Main_Menu()
