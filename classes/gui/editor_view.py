@@ -149,7 +149,7 @@ class Edit_Window():
         data = self.objects['update_outline'].get('rem_form')
         data['header'] = Lbl(self.edit,'Remove Entry',(142.5,st_y+5))
         data['task'] = Cbx(
-            self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(20,40),
+            self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(40,20),
             values=[f'{x[0]} | {x[1]}' for x in res]
         )
         data['confirm'] = Btn(
@@ -168,7 +168,7 @@ class Edit_Window():
         data = self.objects['update_outline'].get('edit_timing_menu')
         data['header'] = Lbl(self.edit,'Project Timing',(142.5,st_y+5))
         data['task'] = Cbx(
-            self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(20,40),
+            self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(40,20),
             values=[f'{x[0]} | {x[1]}' for x in res]
         )
         data['est_completion'] = Ent(self.edit,(st_x+5,st_y+70),(125,20),label=True,txt='Est Completion')
@@ -212,11 +212,11 @@ class Edit_Window():
             data = self.objects['update_outline'].get('edit_status_menu')
             data['header'] = Lbl(self.edit,'Project Status',(142.5,st_y+5))
             data['task'] = Cbx(
-                self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(20,40),
+                self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(40,20),
                 values=[f'{x[0]} | {x[1]}' for x in res]
             )
             data['status'] = Cbx(
-                self.edit,(st_x+5,st_y+70),(150,20),label=True,txt='Status',lbl_size=(20,40),
+                self.edit,(st_x+5,st_y+70),(150,20),label=True,txt='Status',lbl_size=(40,20),
                 values=[f'{x[1]}' for x in self.project.get_status_opts()]
             )
             idx = lambda X: [x[0] for x in res].index(int(X))
@@ -245,7 +245,7 @@ class Edit_Window():
         data = self.objects['update_outline'].get('edit_form')
         data['header'] = Lbl(self.edit,'Edit Entry',(142.5,st_y+5))
         data['task'] = Cbx(
-            self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(20,40),
+            self.edit,(st_x-50,st_y+25),(200,20),label=True,txt='Task',lbl_size=(40,20),
             values=[f'{x[0]} | {x[1]}' for x in res]
         )
         data['task_name'] = Ent(self.edit,(st_x+5,st_y+70),(125,20),label=True,txt='Title')
@@ -306,7 +306,7 @@ class Project_Status():
         data['canvas1'] = self.status.create_rectangle(25,10,275,190,fill='#1c1c1f')
         data['header'] = Lbl(self.status,self.project.title,(100,st_y+5))
         data['curr_stat'] = Cbx(
-                self.status,(95,st_y+30),(150,20),label=True,txt='Status',lbl_size=(20,40),
+                self.status,(95,st_y+30),(150,20),label=True,txt='Status',lbl_size=(40,20),
                 values=[f'{x[1]}' for x in self.project.get_status_opts()]
             )
         data['curr_stat'].insert(self.project.status)

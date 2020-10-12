@@ -36,6 +36,7 @@ class Outline(Project):
 
     def update_outline(self,field,task,value):
         q = f"update dmp.project_outlines set {field} = '{value}' where project = '{self.title}' and task_name = '{task}'"
+        print(q)
         self.dbcon.xquery(q)
         self.refresh()
 

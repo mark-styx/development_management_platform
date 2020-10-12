@@ -13,6 +13,7 @@ class Project_Home(Frame):
 
     def __init__(self,parent,tools,proj_home,app_objects):
         self.proj_home = proj_home
+        self.app_objects = app_objects
         self.parent = parent;self.tools = tools
         self.kill,self.destroy_all = tools['kill'],tools['destroy']
         app_objects['project_home'] = {}
@@ -55,7 +56,7 @@ class Project_Home(Frame):
 
     def live_proj_menu(self):
         self.clear_switches('live_projects')
-        self.live_menu = Live_Menu(self.parent,self.objects,self.tools,self.proj_home)
+        self.live_menu = Live_Menu(self.parent,self.objects,self.tools,self.proj_home,self.app_objects['app_data'])
 
     def bug_report_menu(self):
         self.clear_switches('bug_reporting')

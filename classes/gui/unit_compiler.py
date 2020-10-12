@@ -5,7 +5,8 @@ from mk_lbl import Lbl
 
 class Unit_Window():
 
-    def __init__(self,parent,objects,tools,proj_home,active_project):
+    def __init__(self,parent,objects,tools,proj_home,active_project,app_data):
+        self.app_data = app_data
         self.parent = parent
         self.objects = objects
         self.project = active_project
@@ -46,10 +47,10 @@ class Unit_Window():
         self.objects['unit_viewer']['canvas'] = self.unit_viewer.create_rectangle(
             25,0,275,ly+20,fill='#1c1c1f'
         )
-    
+
     def set_unit(self):
         self.unit = self.records[self.unit_var.get()][1]
         print(self.unit)
-        self.objects['app_data'].last_compile(self.unit)
+        self.app_data.last_compile(self.unit)
         self.project.compile_unit(self.proj_home,self.unit)
         self.unit_wdw.destroy()

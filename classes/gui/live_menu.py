@@ -17,7 +17,8 @@ import webbrowser
 
 class Live_Menu():
     
-    def __init__(self,parent,objects,tools,proj_home):
+    def __init__(self,parent,objects,tools,proj_home,app_data):
+        self.app_data = app_data
         self.gconn = git_conn()
         self.parent = parent
         self.objects = objects
@@ -276,7 +277,7 @@ class Live_Menu():
             self.gconn.add_file_to_repo(pth,self.active_project.title,fn)
 
     def unit_wdw(self):
-        self.unit_win = Unit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project)
+        self.unit_win = Unit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project,self.app_data)
 
     def edit_meta_wdw(self):
         self.edit_meta = Edit_Window(self.parent,self.objects,self.tools,self.proj_home,self.active_project,'meta')
@@ -288,5 +289,5 @@ class Live_Menu():
         self.proj_stat_upd = Project_Status(self.parent,self.objects,self.active_project)
 
     def reclaimation(self):
-        unit = self.objects['app_data'].last_compile()
+        unit = self.app_data.last_compile()
         self.active_project.reclaim(self.proj_home,unit)
